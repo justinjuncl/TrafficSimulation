@@ -1,42 +1,71 @@
-var traffic, canvas, context,
-	generator1, destroyer1,
-	road1, vehicle1;
+var traffic, canvas,
+	generator1, generator2,
+	road1,
+	button1, button2;
 
 function init() {
 
 	traffic = new Traffic({
-		canvas: "canvas",
-		width: 500,
-		height: 500
+		width: 1200,
+		height: 500,
+		scale: 1,
+		fastForward: 3
 	});
 
 	generator1 = traffic.generator({
 		x: 100,
 		y: 100,
-		generationRate: 1,
-		truckRatio: 0.25,
-		maxVehicles: 25,
-		carSize: 3,
-		truckSize: 5
+		maxVehicles: 20
 	});
 
-	destroyer1 = traffic.destroyer({
-		x: 300,
+	generator2 = traffic.generator({
+		x: 1100,
 		y: 100
 	});
 
 	road1 = traffic.road({
 		from: generator1,
-		to: destroyer1,
-		laneCount: 5,
-		maxSpeed: 3
+		to: generator2,
 	});
 
-}
+	// road2 = traffic.road({
+	// 	from: generator2,
+	// 	to: generator1
+	// });
 
-function render() {
+	button1 = traffic.button({
+		label: "Start",
+		id: "StartButton",
+	});
+
+	button2 = traffic.button({
+		label: "Pause",
+		id: "PauseButton",
+	});
+
+	// traffic.vehicle({
+	// 	location: road1,
+	// 	lane: 0,
+	// 	localY : 500,
+	// 	isStationary: true
+	// });
+
+	// traffic.vehicle({
+	// 	location: road1,
+	// 	lane: 0,
+	// 	localY : 200,
+	// 	isStationary: true
+	// });
+
+	// traffic.vehicle({
+	// 	location: road1,
+	// 	lane: 0,
+	// 	localY : 800,
+	// 	isStationary: true
+	// });
+
 
 }
 
 init();
-traffic.start();
+traffic.renderBlocks();

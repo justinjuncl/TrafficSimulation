@@ -1,17 +1,19 @@
 
 Generator = function ( args ) {
 
+	this.traffic = args.traffic;
+
 	this.type = "Generator";
 
 	this.x = args.x;
 	this.y = args.y;
 
-	this.generationRate = args.generationRate;
-	this.truckRatio = args.truckRatio;
-	this.maxVehicles = args.maxVehicles;
+	this.generationRate = args.generationRate || 1;
+	this.truckRatio = args.truckRatio || 0.25;
+	this.maxVehicles = args.maxVehicles || 50;
 
-	this.carSize = args.carSize;
-	this.truckSize = args.truckSize;
+	this.carSize = args.carSize || 3;
+	this.truckSize = args.truckSize || 5;
 
 };
 
@@ -23,27 +25,21 @@ Generator.prototype = {
 
 	},
 
-	init: function () {
+	get width () {
 
-		this.lane = []
-
-		this.time = 0;
-
-		this.direction = this.to.direction;
-		this.laneCount = this.to.laneCount;
-		this.width = this.to.width;
+		return this.to ? this.to.width : this.from.width;
 
 	},
 
-	generateVehicle: function ( location, lane, size ) {
+	get direction () {
 
-		return new this.traffic.vehicle({
-			length: size,
-			width: 2,
-			location: location,
-			lane: lane,
-			localY: size / 2
-		})
+		return this.to ? this.to.direction.multiplyScalar( -1 ) : this.from.direction;
+
+	},
+
+	get tangent () {
+
+		return this.to ? this.to.tangent : this.from.tangent;
 
 	},
 
@@ -51,26 +47,61 @@ Generator.prototype = {
 
 		var size = ( probability( this.truckRatio ) ) ? this.truckSize : this.carSize;
 
-		if ( !this.to.vehicleAtLocation( lane, size ) ) {
+		if ( !this.to.vehicleAtLocation( lane, size / 2 ) ) {
 
-			this.generateVehicle( this.to, lane, size );
+			this.traffic.vehicle({
+				length: size,
+				location: this.to,
+				lane: lane,
+			});
 
 		}
 
 	},
 
-	update: function ( deltaTime ) {
+	init: function () {
 
-		var randomLane = Math.floor( Math.random() * this.laneCount );
+		this.time = 0;
+		this.totalTime = 0;
+		this.vehiclesCount = 0;
 
-		//this.insertIntoLane( randomLane );
+		if (!this.to) {
 
-		this.time += deltaTime;
+			return;
+
+		}
+
+		this.direction = this.to.direction;
+		this.laneCount = this.to.laneCount;
+		this.width = this.to.width;
 
 	},
 
-	render: function () {
+	update: function ( deltaTime ) {
 
-	}
+		if (!this.to) {
+
+			return;
+		
+		}
+
+		this.time += deltaTime;
+		this.totalTime += deltaTime;
+
+		if ( this.vehiclesCount < this.maxVehicles ) {
+
+			if ( this.time >= this.generationRate ) {
+
+				this.time -= this.generationRate;
+				this.vehiclesCount++;
+
+				var randomLane = Math.floor( Math.random() * this.laneCount );
+				this.insertIntoLane( randomLane );
+
+			}
+
+		}
+
+	},
 
 }

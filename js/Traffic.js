@@ -1,30 +1,73 @@
 
 Traffic = function ( args ) {
 
-	this.pBreak = 0.5;
-	this.pChoose = 0.5;
+	this.kValue = 0.5;
+	this.fValue = 1;
+	this.eValue = 1;
+	this.tMinValue = 3;
+	this.tMaxValue = 10;
+	this.maxVision = 300;
+	this.zValue = 1;
+	this.cValue = 2;
 
 	this.vehicles = [];
 	this.roads = [];
 	this.junctions = [];
 	this.generators = [];
-	this.destroyers = [];
-
-	this.canvas = new Canvas( args );
-	this.canvas.traffic = this;
-
-	this.engine = new Engine();
 
 	this.totalTime = 0;
+
+	this.fastForward = args.fastForward || 1;
+
+	this.canvas( args );
 
 };
 
 Traffic.prototype = {
 
+	button: function ( args ) {
+
+		var button = document.createElement("input");
+
+		button.type = "button";
+		button.value = args.label;
+		button.id = args.id;
+
+		button.onclick = function () { 
+
+			switch ( button.value ) {
+
+				case "Start":
+
+					traffic.start();
+
+					break;
+
+				case "Pause":
+
+					traffic.pause();
+
+					break;
+
+			}
+
+		};
+
+		document.body.appendChild( button );
+
+	},
+
+	canvas: function ( args ) {
+
+		args.traffic = this;
+		var canvas = new Canvas( args );
+		this.canvas = canvas;
+	},
+
 	junction: function ( args ) {
 
+		args.traffic = this;
 		var junction = new Junction( args );
-		junction.traffic = this;
 		this.junctions.push( junction );
 		return junction;
 
@@ -32,26 +75,17 @@ Traffic.prototype = {
 
 	generator: function ( args ) {
 
+		args.traffic = this;
 		var generator = new Generator( args );
-		generator.traffic = this;
 		this.generators.push( generator );
 		return generator;
 
 	},
 
-	destroyer: function ( args ) {
-
-		var destroyer = new Destroyer( args );
-		destroyer.traffic = this;
-		this.destroyers.push( destroyer );
-		return destroyer;
-
-	},
-
 	road: function ( args ) {
 
+		args.traffic = this;
 		var road = new Road( args );
-		road.traffic = this;
 		this.roads.push( road );
 		return road;
 
@@ -59,8 +93,8 @@ Traffic.prototype = {
 
 	vehicle: function ( args ) {
 
+		args.traffic = this;
 		var vehicle = new Vehicle( args );
-		vehicle.traffic = this;
 		this.vehicles.push( vehicle );
 		return vehicle;
 
@@ -90,18 +124,16 @@ Traffic.prototype = {
 
 	pause: function () {
 
-		this.running = false;
-		window.cancelAnimationFrame( this.animationFrame );
+		if ( this.running ) {
+
+			this.running = false;
+			window.cancelAnimationFrame( this.animationFrame );
+		
+		}
 
 	},
 
 	init: function () {
-
-		for ( var r = 0; r < this.roads.length; r++ ) {
-
-			this.roads[r].init();
-
-		}
 
 		for ( var j = 0; j < this.junctions.length; j++ ) {
 
@@ -115,12 +147,6 @@ Traffic.prototype = {
 
 		}
 
-		for ( var d = 0; d < this.destroyers.length; d++ ) {
-
-			this.destroyers[d].init();
-
-		}
-
 	},
 
 	update: function () {
@@ -128,6 +154,8 @@ Traffic.prototype = {
 		this.currentTime = Date.now();
 		this.deltaTime = ( this.currentTime - this.lastTime ) / 1000;
 		this.lastTime = this.currentTime;
+
+		this.deltaTime *= this.fastForward;
 
 		this.totalTime += this.deltaTime;
 
@@ -145,12 +173,6 @@ Traffic.prototype = {
 
 		}
 
-		for ( var d = 0; d < this.destroyers.length; d++ ) {
-
-			this.destroyers[d].update( this.deltaTime );
-
-		}
-
 		for ( var r = 0; r < this.roads.length; r++ ) {
 
 			this.roads[r].update( this.deltaTime );
@@ -165,41 +187,29 @@ Traffic.prototype = {
 
 	},
 
+	reset: function () {
+
+		this.pause();
+		this.animationFrame = null;
+
+		this.vehicles = [];
+		this.roads = [];
+		this.junctions = [];
+		this.generators = [];
+
+		this.totalTime = 0;
+
+	},
+
 	renderBlocks: function () {
 
-		for ( var j = 0; j < this.junctions.length; j++ ) {
-
-			this.junctions[j].render();
-
-		}
-
-		for ( var g = 0; g < this.generators.length; g++ ) {
-
-			this.generators[g].render();
-
-		}
-
-		for ( var d = 0; d < this.destroyers.length; d++ ) {
-
-			this.destroyers[d].render();
-
-		}
-
-		for ( var r = 0; r < this.roads.length; r++ ) {
-
-			this.roads[r].render();
-
-		}
+		this.canvas.renderBlocks();
 
 	},
 
 	renderVehicles: function () {
 
-		for ( var v = 0; v < this.vehicles.length; v++ ) {
-
-			this.vehicles[v].render();
-
-		}
+		this.canvas.renderVehicles();
 
 	}
 

@@ -1,80 +1,130 @@
 
 Vehicle = function ( args ) {
 
-	this.length = args.length;
-	this.width = args.width;
+	this.traffic = args.traffic;
+
+	this.isStationary = args.isStationary || false;
+	this.isAlerted = false;
+
+	this.length = args.length || 3;
+	this.width = args.width || 2;
+
+	this.minDistance = 2;
 
 	this.acceleration = 0;
-	this.speed = args.speed;
+	this.maxAcceleration = 3;
+	this.minAcceleration = -3;
 
-	this.laneDecision = args.laneDecision;
-	this.junctionDecision = args.junctionDecision;
+	this.speed = args.speed || 3;
+
+	this.safeness = [Date.now() / 1000, Infinity];
+	this.pastSafeness = [this.safeness[0] - 0.5, Infinity];
+	this.veryPastSafeness = [this.safeness[0] - 1, Infinity];
+
+	this.laneDecision = args.laneDecision === undefined ? 0 : args.laneDecision;
+	this.junctionDecision = args.junctionDecision === undefined ? randomWeighted([-1, 0, 1], [1, 2, 1]) : args.junctionDecision;
+	this.wantedLaneDecision = args.wantedLaneDecision === undefined ? 0 : args.wantedLaneDecision;
+
+	this.wantToChangeLane = false;
 
 	this.location = args.location;
 	this.lane = args.lane;
 
-	this.localY = args.localY;
-	this.partialX = 0;
+	this.pLane = 0;
 
-	this.setLocation(this.location, this.lane, this.localY);
+	this.partialX = args.partialX === undefined ? 0 : args.partialX;
+	this.localY = args.localY === undefined ? 0: args.localY;
 
 	this.time = 0;
+	this.totalTime = 0;
 
+	this.setLocation( this.location, this.lane, this.localY );
 };
 
 Vehicle.prototype = {
 
 	get localX () {
 
-		return this.location.laneWidth * ( this.lane + 0.5 ) + this.partialX;
+		return this.partialX + this.location.laneWidth * ( this.lane + 0.5 ) - ( this.width * 0.5 );
 
 	},
 
-	get minLocalX () {
-
-		return this.localX - ( this.width / 2 );
-
-	},
-
-	get maxLocalX () {
+	get centerLocalX () {
 
 		return this.localX + ( this.width / 2 );
 
 	},
 
-	get minLocalY () {
+	get maxLocalX () {
 
-		return this.localY - ( this.length / 2 );
-
-	},
-
-	set minLocalY ( y ) {
-
-		this.localY = y + ( this.length / 2 );
+		return this.localX + this.width;
 
 	},
 
-	get maxLocalY () {
+	get centerLocalY () {
 
 		return this.localY + ( this.length / 2 );
 
 	},
 
+	set centerLocalY ( y ) {
+
+		this.localY = y - ( this.length / 2 );
+
+	},
+
+	get maxLocalY () {
+
+		return this.localY + this.length;
+
+	},
+
 	get globalPosition () {
 
-		return this.location.from.position.addVector( this.location.direction.multiplyScalar( this.localY ) );
+		return this.location.position.addVector( this.direction.multiplyScalar( this.localY ) )
+											.addVector( this.tangent.multiplyScalar( this.localX ) );
+
+	},
+
+	get centerGlobalPosition () {
+
+		var position = this.globalPosition;
+
+		return position.addVector( this.direction.multiplyScalar( this.length / 2 ) )
+						.addVector( this.tangent.multiplyScalar( this.width / 2 ) );
+
+	},
+
+	get maxGlobalPosition () {
+
+		var position = this.globalPosition;
+
+		return position.addVector( this.direction.multiplyScalar( this.length ) )
+						.addVector( this.tangent.multiplyScalar( this.width ) );
 
 	},
 
 	get delta () {
 
-		return this.location.delta(this.lane, this);
+		return this.location.delta( this );
 
 	},
 
 	get gamma () {
 
-		return this.location.gamma(this.lane, this);
+		return this.location.gamma( this );
+
+	},
+
+	deltaSide: function ( i ) {
+
+		return this.location.deltaAtLocation( this.lane + i, this.localY + this.length );
+
+	},
+
+	gammaSide: function ( i ) {
+
+		return this.location.gammaAtLocation( this.lane + i, this.localY);
 
 	},
 
@@ -126,26 +176,33 @@ Vehicle.prototype = {
 
 	},
 
-	get vector () {
+	get direction () {
 
 		return this.location.direction;
+
+	},
+
+	get tangent () {
+
+		return this.location.tangent;
+
 	},
 
 	get velocity () {
 
-		return this.vector.multiplyScalar( this.speed );
+		return this.direction.multiplyScalar( this.speed );
 
 	},
 
 	get color () {
 
-		var a = this.acceleration;
+		return this.acceleration / this.maxAcceleration;
 
 	},
 
 	get speedX () {
 
-		return ( this.laneDecision === 0 ) ? 0 : this.laneDecision * this.speed * 0.1;
+		return 1;
 
 	},
 
@@ -164,15 +221,13 @@ Vehicle.prototype = {
 
 			case "Road":
 
-				var road = this.location;
-				var lane = this.lane();
-				var index = road.lane[ lane ].indexOf( this );
+				var location = this.location;
+				var lane = this.lane;
+				var index = location.lane[ lane ].indexOf( this );
 
-				this.location.lane[ lane ].splice( index, 1 );
+				if ( index === -1 ) break;
 
-				break;
-
-			case "Junction":
+				location.lane[ lane ].splice( index, 1 );
 
 				break;
 
@@ -181,51 +236,56 @@ Vehicle.prototype = {
 				break;
 
 		}
-
-		this.location = null;
 
 	},
 
 	setLocation: function ( location, lane, localY ) {
 
-		if ( !location || !lane || !localY ) {
-
-			return;
-
-		}
-
 		switch ( location.type ) {
 
 			case "Road":
 
-				//Fall through
-
-			case "Destroyer":
+				this.removeLocation();
 
 				this.localY = localY;
+				this.location = location;
+				this.lane = lane;
 
-				if ( this.location === location && this.lane === lane ) {
-					// Do nothing to road array if on same lane and road
-				} else {
+				if (location.lane[lane].length === 0) {
+					location.lane[lane].unshift( this );
+					break;
+				}
 
-					this.removeLocation();
-					this.location = location;
-					this.lane = lane;
+				if ( this.localY < location.lane[lane][0].localY ) {
 
-					for ( i = 0; i < location.lane[ lane ].length; i++ ) {
-						if ( i.localY < this.localY ) {
-							this.location.splice( i + 1, 0, this);
-						}
-					}
+					location.lane[lane].unshift( this );
+					break;
 
 				}
 
-				break;
+				if ( this.localY > location.lane[lane][location.lane[lane].length - 1].localY ) {
+
+					location.lane[lane].push( this );
+					break;
+
+				}
+
+				for ( i = 0; i < location.lane[lane].length - 1; i++ ) {
+					if ( location.lane[lane][i].localY < this.localY && this.localY < location.lane[lane][i + 1].localY ) {
+						location.lane[ lane ].splice( i + 1, 0, this);
+						break;
+					}
+				}
 
 			case "Junction":
 
-				this.removeLocation();
 				this.location = location;
+
+				break;
+
+			case "Generator":
+
+				this.removeVehicle();
 
 				break;
 
@@ -237,54 +297,82 @@ Vehicle.prototype = {
 
 	},
 
-	translateHorizontally: function ( pX ) {
+	updateLane: function ( deltaTime ) {
 
+		if ( this.location.type !== "Road" ) return;
+		if ( this.laneDecision === 0 ) return;
+		if ( this.lane + this.laneDecision < 0 || this.lane + this.laneDecision >= this.location.laneCount ) return;
+
+		this.partialX += this.speedX * deltaTime * this.laneDecision;
+
+		if ( this.partialX >= this.location.laneWidth ) {
+
+			this.partialX -= this.location.laneWidth;
+			this.setLocation( this.location, this.lane + this.laneDecision, this.localY );
+
+		} else if ( this.partialX <= -this.location.laneWidth ) {
+
+			this.partialX += this.location.laneWidth;
+			this.setLocation( this.location, this.lane + this.laneDecision, this.localY );
+
+		}
+
+		this.laneDecision = 0;
+		this.wantedLaneDecision = 0;
 
 	},
 
-	updateLane: function () {
+	attractivenessLaneDecision: function ( i, deltaTime ) {
 
-		if ( this.partialX >= this.location.laneWidth / 2) {
+		if ( this.lane + i < 0 || this.lane + i >= this.location.laneCount ) {
 
-			this.partialX -= this.location.laneWidth / 2;
+			return -1;
 
-			this.setLocation(this.location, this.lane + this.laneDecision, this.localY );
+		} else {
+
+			var deltaSide = this.deltaSide( i );
+			var vehicleSideFront = this.location.vehicleFrontLocation( this.lane + i, this.localY);
+			var sideFrontSpeed = ( vehicleSideFront ) ? vehicleSideFront.speed : 0;
+
+			var sM = this.location.maxSpeed;
+
+			return sM * deltaSide - sideFrontSpeed * deltaTime;
 
 		}
 
 	},
 
-	canChangeLane: function ( i ) {
+	isSafeLaneDecision: function ( i ) {
 
-		if ( this.road.vehicleAtLocation( this.lane + i, this.localY ) ) {
+		if ( this.lane + i < 0 || this.lane + i >= this.location.laneCount ) {
 
 			return false;
 
 		}
 
-		var vehicleSide = this.road.vehicleAtLocation( this.lane + i, this.localY );
-
-		if ( vehicleSide.delta <= this.delta ) {
+		if ( this.location.vehicleAtLocation( this.lane + i, this.localY ) ) {
 
 			return false;
 
 		}
 
-		if ( !this.road.vehicleBehindLocation( this.lane + i, this.localY) ) {
+		var vehicleSideBehind = this.location.vehicleBehindLocation( this.lane + i, this.localY );
+
+		if ( !vehicleSideBehind ) {
 
 			return true;
 
 		}
 
-		var vehicleSideBehind = this.road.vehicleBehindLocation( this.lane + i, this.localY );
+		var s = vehicleSideBehind.speed;
 
-		if ( cehicleSideBehind.speed > this.speed ) {
+		if ( s > this.speed ) {
 
 			return false;
 
 		}
 
-		if ( this.road.gammaY( this.lane + i, this.localY ) <= v * v * 81 / 1250 ) {
+		if ( this.gammaSide( i ) <= s * s * 81 / 1250 ) {
 
 			return false;
 
@@ -294,112 +382,187 @@ Vehicle.prototype = {
 
 	},
 
-	updateLaneDecision: function () {
+	updateLaneDecision: function ( deltaTime ) {
 
-		if ( this.laneDecision !== 0  || this.delta >= this.road.maxSpeed ) {
+		if ( this.junctionDecision === 0 ) {
 
-			return;
+			var a = [this.attractivenessLaneDecision( -1, deltaTime ), this.attractivenessLaneDecision( 0, deltaTime ), this.attractivenessLaneDecision( 1, deltaTime )];
+
+			// wLDI - wantedLaneDecisionIndex = wantedLaneDecision + 1
+			var wLDI = a.indexOf(Math.max.apply(null, a));
+
+			if ( a[wLDI] === a[1] ) {
+
+				wLDI = 1;
+
+			}
+
+			this.wantedLaneDecision = wLDI - 1;
+
+		} else {
+
+			this.wantedLaneDecision = this.junctionDecision;
 
 		}
 
-		var n = 0;
+		if ( !this.wantToChangeLane ) {
 
-		if ( this.canChangeLane( -1 ) ) {
+			var pLane;
 
-			n += 1;
+			if ( this.junctionDecision === 0) {
 
-		}
+				if ( this.location.vehicleFront( this ) ) {
 
-		if ( this.canChangeLane( 1 ) ) {
+					var sF = this.location.vehicleFront( this ).speed;
+					var sM = this.location.maxSpeed;
 
-			n += 2;
+					pLane = 1 - ( sF / sM ) * ( this.delta / this.deltaSide( this.wantedLaneDecision ) );
 
-		}
+				} else {
 
-		if ( n === 3 ) {
+					pLane = 0;
 
-			switch ( this.junctionDecision ) {
+				}
 
-				case 0:
+				this.timeLaneChange = ( 1 - pLane ) * this.traffic.tMinValue + pLane * this.traffic.tMaxValue;
 
-					n = ( probability( this.traffic.pChoose ) ) ? 1 : 2;
+			} else {
 
-					break;
+				var l = this.location.length;
+				var n = ( this.wantedLaneDecision > 0 ) ? this.location.laneCount - 1 - this.lane : this.lane;
+				//var d = this.location.length - this.maxLocalY;
 
-				case -1:
+				pLane = ( ( this.maxlocalY ) / l ) ^ ( 1 / n );
 
-					n = 1;
+				this.timeLaneChange = this.traffic.tMinValue / ( ( 1 - pLane ) ^ this.traffic.zValue);
 
-					break;
+			}
 
-				case 1:
+			this.pLane = pLane;
 
-					n = 2;
-
-					break;
-
-				default:
-
-					break;
-
+			if ( probability( pLane ) ) {
+				this.wantToChangeLane = true;
+			} else {
+				this.wantedLaneDecision = 0;
 			}
 
 		}
 
-		// ----------------
-		// Implement pGo
-		var pGo = 0.5;
-		// ----------------
+		if ( this.isSafeLaneDecision( this.wantedLaneDecision ) ) {
 
-		if ( n !== 0 ) {
+			this.laneDecision = this.wantedLaneDecision;
 
-			n = ( probability( pGo ) ) ? 0 : n;
+		} else {
+
+			this.laneDecision = 0;
+
+		}
+
+		if ( this.timeLaneChange > 0 ) {
+
+			this.timeLaneChange -= deltaTime;
+
+		} else {
+
+			this.timeLaneChange = 0;
+			this.wantedLaneDecision = 0;
+			this.laneDecision = 0;
+			this.wantToChangeLane = false;
 
 		}
 
-		switch (n) {
+	},
 
-			case 0:
+	get safetyDistance () {
 
-				this.laneDecision = 0;
-
-				break;
-
-			case 1:
-
-				this.laneDecision = -1;
-
-				break;
-
-			case 2:
-
-				this.laneDecision = 1;
-
-				break;
-
-			default:
-
-				break;
-
-		}
+		return this.speed * this.speed * 81 / 625;
 
 	},
 
 	updateSpeed: function ( deltaTime ) {
 
 		var s = this.speed;
+		var sF = ( this.location.vehicleFront( this ) ) ? this.location.vehicleFront( this ).speed : 0;
+		var sM = this.location.maxSpeed;
 
-		var saftyDistance = this.delta + s - ( v * v * 81 / 625);
+		//---------------------------------------
+		// Calculating safenessValue
 
-		var newSpeed = Math.min(s + this.acceleration, this.location.maxSpeed, saftyDistance);
+		var newSafenessValue;
 
-		if (probability(this.traffic.pBreak) && newSpeed > 0) {
-			newSpeed--;
+		if ( this.delta > this.traffic.maxVision ) {
+
+			newSafenessValue = Infinity;
+
+		} else {
+
+			var nSVAux = this.delta - this.minDistance - this.safetyDistance - ( s - sF );
+			newSafenessValue = (nSVAux > 0) ? this.traffic.kValue * nSVAux: nSVAux;
+
+		}
+		
+		//---------------------------------------
+
+		//---------------------------------------
+		// Calculating newAcceleration
+
+		var newAcceleration;
+
+		if ( s < sM - this.traffic.eValue ) {
+
+			newAcceleration = this.maxAcceleration * ( ( 1 - s / sM ) ^ this.traffic.fValue );
+
+		} else if ( sM - this.traffic.eValue <= s && s <= sM + this.traffic.eValue ) {
+
+			newAcceleration = 0;
+
+		} else if ( sM + this.traffic.eValue < s ) {
+
+			newAcceleration = this.maxAcceleration * ( 1 - s / sM )
+
 		}
 
-		this.speed = newSpeed;
+		// if ( probability(0.1) ) newAcceleration = 0;
 
+		//---------------------------------------
+
+		//---------------------------------------
+		// Getting oldSafenessValue
+
+		var newSafeness = [Date.now() / 1000, newSafenessValue];
+
+		var veryPastTime = Math.abs( newSafeness[0] - this.veryPastSafeness[0] - 1 );
+		var pastTime = Math.abs( newSafeness[0] - this.pastSafeness[0] - 1 );
+
+		var oldSafenessValue = ( veryPastTime < pastTime ) ? this.veryPastSafeness[1] : this.pastSafeness[1];
+
+		//---------------------------------------
+		// Calculating acceleration for lane decision
+
+		var p = this.pLane;
+		var a = ( probability(p) ) ? 1 : 0;
+		var laneAcceleration = a * ( p ^ this.traffic.cValue ) * s;
+
+		//---------------------------------------
+
+		newAcceleration = Math.min( oldSafenessValue - s, newAcceleration)//, -laneAcceleration );
+
+		newAcceleration = Math.max( this.minAcceleration, newAcceleration );
+
+		var newSpeed = s + newAcceleration * deltaTime;
+		newSpeed = Math.max( 0, newSpeed );
+
+		this.speed = newSpeed;
 		this.acceleration = ( newSpeed - s ) / deltaTime;
+
+		if ( this.time >= 0.5 ) {
+
+			this.time -= 0.5;
+			this.veryPastSafeness = this.pastSafeness;
+			this.pastSafeness = this.safeness;
+			this.safeness = newSafeness;
+
+		}
 
 	},
 
@@ -409,24 +572,21 @@ Vehicle.prototype = {
 
 			case "Road":
 
-				// Fall through
-
-			case "Junction":
-
 				var newLocalY = this.localY + this.speed * deltaTime;
 				var diff = newLocalY - this.location.length;
 
 				if ( diff < 0 ) {
 
-					this.setLocation( this.location, this.lane, newLocalY );
+					//this.setLocation( this.location, this.lane, newLocalY );
+
+					this.localY = newLocalY;
 
 				} else {
 
+					this.removeLocation();
 					this.setLocation( this.locationTo, this.lane, diff );
 
 				}
-
-				this.partialX += this.speedX * deltaTime;
 
 				break;
 
@@ -440,17 +600,16 @@ Vehicle.prototype = {
 
 	update: function ( deltaTime ) {
 
-		this.updateLane();
-		this.updateLaneDecision();
+		if (this.isStationary) return;
+
+		this.updateLaneDecision( deltaTime );
+		this.updateLane( deltaTime );
 		this.updateSpeed( deltaTime );
 		this.updateLocation( deltaTime );
 
 		this.time += deltaTime;
+		this.totalTime += deltaTime;
 
 	},
-
-	render: function () {
-
-	}
 
 };

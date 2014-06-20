@@ -1,3 +1,5 @@
+/* blue: steelblue */
+
 body {
 	font-family: 'Open Sans', sans-serif;
 	background-color: #F0F0F0;
@@ -23,11 +25,26 @@ li {
 	padding: 0;
 }
 
+input {
+	position: relative;
+	z-index: 2;
+}
+
 output {
 	font-weight: 700;
 	color: #597591;
 }
 
 canvas {
-	background-color: steelblue;
+	margin: 0 auto;
+}
+
+#canvasBlocks {
+	position: absolute;
+	z-index: 0;
+}
+
+#canvasVehicles {
+	position: absolute;
+	z-index: 1;
 }

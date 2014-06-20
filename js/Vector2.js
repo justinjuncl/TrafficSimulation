@@ -7,12 +7,6 @@ Vector2 = function ( x, y ) {
 
 Vector2.prototype = {
 
-    get clone() {
-
-        return new Vector2( this.x, this.y );
-
-    },
-
 	add: function ( v1, v2 ) {
 
 		this.x = v1.x + v2.x;
@@ -41,8 +35,8 @@ Vector2.prototype = {
 
 	subVector: function ( v ) {
 
-		this.x += v.x;
-		this.y += v.y;
+		this.x -= v.x;
+		this.y -= v.y;
 
 		return this;
 	},
@@ -72,6 +66,12 @@ Vector2.prototype = {
 
         return this;
 
+    },
+
+    translate: function (x, y) {
+
+        this.x += x;
+        this.y += y;
     },
 
 	isEqual: function ( v ) {
@@ -104,20 +104,25 @@ Vector2.prototype = {
 
     },
 
+	get clone() {
+
+		return new Vector2( this.x, this.y );
+
+	},
+
     get normal() {
 
         return this.clone.normalize();
 
     },
 
+    // 0 1
+    // -1 0
+
     get tangent() {
 
-        var vector;
+        return new Vector2( this.normal.y, -this.normal.x );
 
-        vector.x = this.normal.y;
-        vector.y = -this.normal.x;
-
-        return vector;
     },
 
     get angleRad() {

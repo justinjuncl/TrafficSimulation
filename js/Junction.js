@@ -47,6 +47,8 @@ function sortArray ( a, b ) {
 
 Junction = function ( args ) {
 
+	this.traffic = args.traffic;
+
 	this.type = "Junction";
 
     this.x = args.x;

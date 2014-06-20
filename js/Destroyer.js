@@ -51,15 +51,15 @@ Destroyer.prototype = {
 
 		var vehicles = this.traffic.vehicles;
 
-		vehicles.foreach(function( element, index, array ) {
+		for ( var v = 0; v < vehicles.length; v++ ) {
 
-			if (vInD.contains(element)) {
+			if ( vInD.contains(vehicles[v]) ) {
 
-				array.splice( index, 1 );
+				vehicles.splice( v, 1 );
 
 			}
 
-		});
+		}
 
 		this.lane = [];
 

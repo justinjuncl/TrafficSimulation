@@ -58,3 +58,17 @@ function rA ( x ) {
 	return g + a;
 
 }
+
+// Distribution Auxiliary Function
+
+function randomDTA () {
+
+	return ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
+	
+}
+
+function randomDistribution ( mean, sD) {
+
+	return mean + sD * randomDTA;
+
+}
