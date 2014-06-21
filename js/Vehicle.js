@@ -4,16 +4,15 @@ Vehicle = function ( args ) {
 	this.traffic = args.traffic;
 
 	this.isStationary = args.isStationary || false;
-	this.isAlerted = false;
 
 	this.length = args.length || 3;
 	this.width = args.width || 2;
 
-	this.minDistance = 2;
+	this.minDistance = args.minDistance === undefined ? 2 : args.minDistance;
 
 	this.acceleration = 0;
 	this.maxAcceleration = 3;
-	this.minAcceleration = -3;
+	this.minAcceleration = -4;
 
 	this.speed = args.speed || 3;
 
@@ -22,7 +21,7 @@ Vehicle = function ( args ) {
 	this.veryPastSafeness = [this.safeness[0] - 1, Infinity];
 
 	this.laneDecision = args.laneDecision === undefined ? 0 : args.laneDecision;
-	this.junctionDecision = args.junctionDecision === undefined ? randomWeighted([-1, 0, 1], [1, 2, 1]) : args.junctionDecision;
+	this.junctionDecision = args.junctionDecision === undefined ? 0 : args.junctionDecision;
 	this.wantedLaneDecision = args.wantedLaneDecision === undefined ? 0 : args.wantedLaneDecision;
 
 	this.wantToChangeLane = false;
@@ -106,7 +105,17 @@ Vehicle.prototype = {
 
 	get delta () {
 
-		return this.location.delta( this );
+		var futureFrontVehicle = this.futureFrontVehicle;
+
+		if ( futureFrontVehicle ) {
+
+			return futureFrontVehicle.localY - this.maxLocalY;
+
+		} else {
+
+			return this.location.delta( this );
+
+		}
 
 	},
 
@@ -305,15 +314,37 @@ Vehicle.prototype = {
 
 		this.partialX += this.speedX * deltaTime * this.laneDecision;
 
+		var vehicleSideBehind = this.location.vehicleBehindLocation( this.lane + this.laneDecision, this.localY );
+
+		if ( vehicleSideBehind ) {
+
+			if ( !vehicleSideBehind.futureFrontVehicle )
+
+				vehicleSideBehind.futureFrontVehicle = this;
+
+		}
+
 		if ( this.partialX >= this.location.laneWidth ) {
 
 			this.partialX -= this.location.laneWidth;
 			this.setLocation( this.location, this.lane + this.laneDecision, this.localY );
 
+			if ( this.location.vehicleBehind( this ) ) {
+
+				this.location.vehicleBehind( this ).futureFrontVehicle = null;
+
+			}
+
 		} else if ( this.partialX <= -this.location.laneWidth ) {
 
 			this.partialX += this.location.laneWidth;
 			this.setLocation( this.location, this.lane + this.laneDecision, this.localY );
+
+			if ( this.location.vehicleBehind( this ) ) {
+
+				this.location.vehicleBehind( this ).futureFrontVehicle = null;
+
+			}
 
 		}
 
@@ -500,7 +531,7 @@ Vehicle.prototype = {
 			newSafenessValue = (nSVAux > 0) ? this.traffic.kValue * nSVAux: nSVAux;
 
 		}
-		
+
 		//---------------------------------------
 
 		//---------------------------------------
@@ -545,9 +576,17 @@ Vehicle.prototype = {
 
 		//---------------------------------------
 
-		newAcceleration = Math.min( oldSafenessValue - s, newAcceleration)//, -laneAcceleration );
+		newAcceleration = Math.min( oldSafenessValue - s, newAcceleration);
+
+		if ( this.laneDecision !== 0 ) {
+
+			newAcceleration = Math.min( -laneAcceleration, newAcceleration );
+
+		}
 
 		newAcceleration = Math.max( this.minAcceleration, newAcceleration );
+
+		newAcceleration = randomDistribution( newAcceleration, 1 );
 
 		var newSpeed = s + newAcceleration * deltaTime;
 		newSpeed = Math.max( 0, newSpeed );

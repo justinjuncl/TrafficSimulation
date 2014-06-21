@@ -53,6 +53,8 @@ Generator.prototype = {
 				length: size,
 				location: this.to,
 				lane: lane,
+				junctionDecision: randomWeighted([-1, 0, 1], [1, 2, 1]),
+				minDistance: randomDistribution( 2, 1 )
 			});
 
 		}
@@ -82,7 +84,7 @@ Generator.prototype = {
 		if (!this.to) {
 
 			return;
-		
+
 		}
 
 		this.time += deltaTime;

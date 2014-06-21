@@ -15,7 +15,8 @@ function init() {
 	generator1 = traffic.generator({
 		x: 100,
 		y: 100,
-		maxVehicles: 20
+		maxVehicles: 20,
+		generationRate: 1
 	});
 
 	generator2 = traffic.generator({
@@ -43,29 +44,30 @@ function init() {
 		id: "PauseButton",
 	});
 
-	// traffic.vehicle({
-	// 	location: road1,
-	// 	lane: 0,
-	// 	localY : 500,
-	// 	isStationary: true
-	// });
+	traffic.vehicle({
+		location: road1,
+		lane: 0,
+		localY : 800,
+		isStationary: true
+	});
 
-	// traffic.vehicle({
-	// 	location: road1,
-	// 	lane: 0,
-	// 	localY : 200,
-	// 	isStationary: true
-	// });
+	traffic.vehicle({
+		location: road1,
+		lane: 0,
+		localY : 500,
+		isStationary: true
+	});
 
-	// traffic.vehicle({
-	// 	location: road1,
-	// 	lane: 0,
-	// 	localY : 800,
-	// 	isStationary: true
-	// });
-
+	traffic.vehicle({
+		location: road1,
+		lane: 0,
+		localY : 200,
+		isStationary: true
+	});
 
 }
 
 init();
 traffic.renderBlocks();
+
+//traffic.vehicles.forEach( function (element, index, array) { console.log("[" + index + "] " + element.minDistance); } )

@@ -64,11 +64,11 @@ function rA ( x ) {
 function randomDTA () {
 
 	return ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
-	
+
 }
 
-function randomDistribution ( mean, sD) {
+function randomDistribution ( mean, sD ) {
 
-	return mean + sD * randomDTA;
+	return mean + sD * randomDTA();
 
 }
