@@ -1,14 +1,14 @@
 
 Traffic = function ( args ) {
 
-	this.kValue = 0.5;
-	this.fValue = 1;
+	this.cValue = 2;
 	this.eValue = 1;
+	this.fValue = 1;
+	this.kValue = 0.5;
+	this.zValue = 1;
 	this.tMinValue = 3;
 	this.tMaxValue = 10;
 	this.maxVision = 300;
-	this.zValue = 1;
-	this.cValue = 2;
 
 	this.vehicles = [];
 	this.roads = [];
@@ -33,7 +33,7 @@ Traffic.prototype = {
 		button.value = args.label;
 		button.id = args.id;
 
-		button.onclick = function () { 
+		button.onclick = function () {
 
 			switch ( button.value ) {
 
@@ -46,6 +46,12 @@ Traffic.prototype = {
 				case "Pause":
 
 					traffic.pause();
+
+					break;
+
+				case "Reset Simulation":
+
+					traffic.resetSimulation();
 
 					break;
 
@@ -128,7 +134,7 @@ Traffic.prototype = {
 
 			this.running = false;
 			window.cancelAnimationFrame( this.animationFrame );
-		
+
 		}
 
 	},
@@ -192,12 +198,35 @@ Traffic.prototype = {
 		this.pause();
 		this.animationFrame = null;
 
+		this.totalTime = 0;
+
 		this.vehicles = [];
 		this.roads = [];
 		this.junctions = [];
 		this.generators = [];
 
+	},
+
+	resetSimulation: function () {
+
+		this.pause();
+		this.animationFrame = null;
+
 		this.totalTime = 0;
+
+		this.vehicles = [];
+
+		for ( var r = 0; r < this.roads.length; r++ ) {
+
+			this.roads[r].init();
+
+		}
+
+		for ( var g = 0; g < this.generators.length; g++ ) {
+
+			this.generators[g].init();
+
+		}
 
 	},
 
@@ -210,6 +239,19 @@ Traffic.prototype = {
 	renderVehicles: function () {
 
 		this.canvas.renderVehicles();
+
+	},
+
+	logConstants: function () {
+
+		console.log("C: " + this.cValue);
+		console.log("E: " + this.eValue);
+		console.log("F: " + this.fValue);
+		console.log("K: " + this.kValue);
+		console.log("Z: " + this.zValue);
+		console.log("tMin: " + this.tMinValue);
+		console.log("tMax: " + this.tMaxValue);
+		console.log("Max Vision: " + this.maxVision);
 
 	}
 

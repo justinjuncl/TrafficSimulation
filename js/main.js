@@ -44,25 +44,9 @@ function init() {
 		id: "PauseButton",
 	});
 
-	traffic.vehicle({
-		location: road1,
-		lane: 0,
-		localY : 800,
-		isStationary: true
-	});
-
-	traffic.vehicle({
-		location: road1,
-		lane: 0,
-		localY : 500,
-		isStationary: true
-	});
-
-	traffic.vehicle({
-		location: road1,
-		lane: 0,
-		localY : 200,
-		isStationary: true
+	button3 = traffic.button({
+		label: "Reset Simulation",
+		id: "ResetSimButton",
 	});
 
 }

@@ -4,6 +4,7 @@ body {
 	font-family: 'Open Sans', sans-serif;
 	background-color: #F0F0F0;
 	margin: 0;
+	font-size: 9pt;
 }
 
 h1 {
@@ -14,25 +15,13 @@ h1 {
 	text-transform: uppercase;
 }
 
-ul {
-	margin: 0;
-	padding: 0;
-}
-
-li {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+form {
+	margin-left: 5px;
 }
 
 input {
 	position: relative;
 	z-index: 2;
-}
-
-output {
-	font-weight: 700;
-	color: #597591;
 }
 
 canvas {
