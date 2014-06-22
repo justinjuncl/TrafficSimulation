@@ -15,6 +15,7 @@ Traffic = function ( args ) {
 	this.maxVision = 300;
 
 	this.generationRate = 2;
+	this.truckRatio = 0.1
 
 	this.enableLaneChange = true;
 
@@ -65,7 +66,7 @@ Traffic.prototype = {
 
 				case "Average Time Finish":
 
-					alert( "Average Time: " + timeFinish[0] + 
+					alert( "Average Time: " + timeFinish[0] +
 					", Total Cars: " + timeFinish[1] );
 
 			}

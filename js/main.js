@@ -18,7 +18,8 @@ function init() {
 		x: 100,
 		y: 100,
 		maxVehicles: Infinity,
-		generationRate: traffic.generationRate
+		generationRate: traffic.generationRate,
+		truckRatio: traffic.truckRatio
 	});
 
 	generator2 = traffic.generator({
