@@ -14,9 +14,6 @@ Traffic = function ( args ) {
 	this.tMaxValue = 10;
 	this.maxVision = 300;
 
-	this.generationRate = 2;
-	this.truckRatio = 0.1
-
 	this.enableLaneChange = true;
 
 	this.vehicles = [];
