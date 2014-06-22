@@ -65,7 +65,15 @@ Road.prototype = {
 
 		} else {
 
-			return this.length - vehicle.maxLocalY;
+			if ( this.signal[vehicle.lane] ) {
+
+				return this.traffic.maxVision;
+
+			} else {
+
+				return this.length - vehicle.maxLocalY;
+
+			}
 
 		}
 
@@ -98,9 +106,32 @@ Road.prototype = {
 
 			var array = this.lane[lane];
 
-			if ( !array[0] ) return this.length - y;
+			if ( array.length === 0 ) {
 
-			if ( y > array[array.length - 1].maxLocalY ) return this.length - y;
+				if ( this.signal[lane] ) {
+
+					return this.traffic.maxVision;
+
+				} else {
+
+					return this.length - y;
+
+				}
+			}
+
+			if ( y >= array[array.length - 1].maxLocalY ) {
+
+				if ( this.signal[lane] ) {
+
+					return this.traffic.maxVision;
+
+				} else {
+
+					return this.length - y;
+
+				}
+
+			}
 
 			if ( y < array[0].localY ) return array[0].localY - y;
 
@@ -109,13 +140,15 @@ Road.prototype = {
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
 
-				if ( vehicle.maxLocalY < y && y < vehicleFront.localY ) {
+				if ( vehicle.maxLocalY < y && y <= vehicleFront.localY ) {
 
 					return vehicleFront.localY - y;
 
 				}
 
 			}
+
+			debug;
 
 		}
 
@@ -182,7 +215,7 @@ Road.prototype = {
 
 			vehicle = array[i];
 
-			if ( vehicle.localY <= y && y <= vehicle.maxLocalY ) {
+			if ( vehicle.localY <= y && y < vehicle.maxLocalY ) {
 
 				return vehicle;
 
@@ -198,7 +231,7 @@ Road.prototype = {
 
 		var array = this.lane[lane];
 
-		if ( !array[0] ) return null;
+		if ( array.length === 0 ) return null;
 
 		if ( y > array[array.length - 1].maxLocalY ) return null;
 
@@ -251,6 +284,14 @@ Road.prototype = {
 	init: function () {
 
 		this.lane = [];
+
+		this.signal = [];
+
+		for (var i = 0; i < this.laneCount; i++ ) {
+
+			this.signal.push(true);
+
+		}
 
 		for (var i = 0; i < this.laneCount; i++) {
 

@@ -3,6 +3,8 @@ var traffic, canvas,
 	road1,
 	button1, button2;
 
+var timeFinish = [0, 0];
+
 function init() {
 
 	traffic = new Traffic({
@@ -15,8 +17,8 @@ function init() {
 	generator1 = traffic.generator({
 		x: 100,
 		y: 100,
-		maxVehicles: 20,
-		generationRate: 1
+		maxVehicles: Infinity,
+		generationRate: traffic.generationRate
 	});
 
 	generator2 = traffic.generator({
@@ -47,6 +49,11 @@ function init() {
 	button3 = traffic.button({
 		label: "Reset Simulation",
 		id: "ResetSimButton",
+	});
+
+	button3 = traffic.button({
+		label: "Average Time Finish",
+		id: "AveTimeFinButton",
 	});
 
 }

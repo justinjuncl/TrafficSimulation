@@ -10,10 +10,12 @@ Canvas = function ( args ) {
 	this.yellowColor = "#F5B753";
 	this.redColor = "#FF0000";
 	this.blueColor = "#0000FF";
+	this.greenColor = "#00FF00";
 
 	this.outlineWidth = 2;
 	this.inlineWidth = 0.4;
 	this.generatorLength = 5;
+	this.signalLength = 3;
 
 	//-------------------------------------------
 
@@ -21,7 +23,6 @@ Canvas = function ( args ) {
 
 	this.width = args.width;
 	this.height = args.height;
-
 
 	this.canvasBlocks = document.createElement( "canvas" );
 	this.canvasBlocks.width = this.width;
@@ -140,7 +141,7 @@ Canvas.prototype = {
 
 	clearVehicles: function () {
 
-		this.contextVehicles.save();		
+		this.contextVehicles.save();
 		this.contextVehicles.setTransform( 1, 0, 0, 1, 0, 0 );
 		this.contextVehicles.clearRect( 0, 0, this.width, this.height );
 		this.contextVehicles.restore();
@@ -190,6 +191,8 @@ Canvas.prototype = {
 
 	renderGenerator: function ( generator ) {
 
+		if ( generator.to === undefined ) return;
+
 		var start = generator.position;
 		var end = generator.direction.multiplyScalar( this.generatorLength )
 									.addVector( generator.tangent.multiplyScalar( generator.width + this.outlineWidth ) );
@@ -212,6 +215,14 @@ Canvas.prototype = {
 		for ( var r = 0; r < roads.length; r++ ) {
 
 			this.renderRoad( roads[r] );
+
+		}
+		this.contextBlocks.restore();
+
+		this.contextBlocks.save();
+		for ( var r = 0; r < roads.length; r++ ) {
+
+			this.renderRoadSignal( roads[r] );
 
 		}
 		this.contextBlocks.restore();
@@ -254,6 +265,23 @@ Canvas.prototype = {
 		var end = road.vector.addVector( road.tangent.multiplyScalar( road.width ) );
 
 		this.contextBlocks.fillRect( start.x, start.y, end.x, end.y );
+
+	},
+
+	renderRoadSignal: function ( road ) {
+
+		var start = road.position.addVector( road.vector );
+		var end = road.direction.multiplyScalar( this.signalLength )
+							.addVector( road.tangent.multiplyScalar( road.laneWidth ) );
+
+		for (var i = 0; i < road.laneCount; i++) {
+
+			this.contextBlocks.fillStyle = road.signal[i] ? this.greenColor : this.redColor;
+			this.contextBlocks.fillRect( start.x, start.y, end.x, end.y );
+
+			start.addVector( road.tangent.multiplyScalar( road.laneWidth ) );
+
+		}
 
 	},
 
@@ -319,7 +347,6 @@ Canvas.prototype = {
 			this.contextVehicles.restore();
 
 		}
-
 
 	},
 

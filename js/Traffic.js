@@ -1,14 +1,22 @@
 
 Traffic = function ( args ) {
 
+	this.aValue = 4 / 11;
 	this.cValue = 2;
 	this.eValue = 1;
 	this.fValue = 1;
+	this.hValue = 1;
 	this.kValue = 0.5;
+	this.qValue = 1;
+	this.rValue = 1;
 	this.zValue = 1;
 	this.tMinValue = 3;
 	this.tMaxValue = 10;
 	this.maxVision = 300;
+
+	this.generationRate = 2;
+
+	this.enableLaneChange = true;
 
 	this.vehicles = [];
 	this.roads = [];
@@ -54,6 +62,11 @@ Traffic.prototype = {
 					traffic.resetSimulation();
 
 					break;
+
+				case "Average Time Finish":
+
+					alert( "Average Time: " + timeFinish[0] + 
+					", Total Cars: " + timeFinish[1] );
 
 			}
 
