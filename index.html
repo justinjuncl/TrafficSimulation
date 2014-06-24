@@ -39,9 +39,17 @@
         tMax: <input value="10" size="3" onchange="traffic.tMaxValue = this.value">
         Max Vision: <input value="300" size="3" onchange="traffic.maxVision = this.value">
         Fast Forward: <input value="5" size="2" onchange="traffic.fastForward = this.value">
-        Generation Rate: <input value="2" size="2" onchange="generator1.generationRate = this.value">
         Truck Ratio: <input value="0.1" size="2" onchange="generator1.truckRatio = this.value">
-        Enable Lane Change <input type="checkbox" checked="checked" size="3" onchange="traffic.enableLaneChange = this.checked">
+<!--         Enable Lane Change <input type="checkbox" checked="checked" size="3" onchange="traffic.enableLaneChange = this.checked"> -->
+    </form>
+    <form>
+        A Gen Rate: <input value="2" size="2" onchange="generator1.aGen = this.value">
+        B Gen Rate: <input value="3" size="2" onchange="generator1.bGen = this.value">
+        r / 50: <input id = "r" value="1" size="2" onchange="r = this.value">
+        Start Lane Change: <input value="100" size="4" onchange="startLaneChange = this.value">
+        Road Length: <input value="1000" size="5" onchange="generator2.x = parseInt(generator1.x) + parseInt(this.value)">
+
+        Total time: <label id="totalTime"></label>
     </form>
 
 </head>

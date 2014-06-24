@@ -43,7 +43,7 @@ Generator.prototype = {
 
 	},
 
-	insertIntoLane: function ( lane ) {
+	insertIntoLane: function ( lane, jD ) {
 
 		var size = ( probability( this.truckRatio ) ) ? this.truckSize : this.carSize;
 
@@ -53,7 +53,8 @@ Generator.prototype = {
 				length: size,
 				location: this.to,
 				lane: lane,
-				junctionDecision: randomWeighted([-1, 0, 1], [1, 2, 1]),
+				startLane: lane,
+				junctionDecision: ( jD !== undefined ) ? jD : randomWeighted([-1, 0, 1], [1, 2, 1]),
 				minDistance: randomDistribution( 2, 1 )
 			});
 
@@ -76,6 +77,11 @@ Generator.prototype = {
 		this.direction = this.to.direction;
 		this.laneCount = this.to.laneCount;
 		this.width = this.to.width;
+
+	},
+
+	updateCustom: function ( deltaTime ) {
+
 
 	},
 
@@ -103,6 +109,8 @@ Generator.prototype = {
 			}
 
 		}
+
+		this.updateCustom( deltaTime );
 
 	},
 

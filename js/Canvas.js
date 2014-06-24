@@ -433,8 +433,8 @@ function keyDownListener ( e ) {
 
 			canvas.isZooming = true;
 
-			canvas.zoomStartX = canvas.mouseX;
-			canvas.zoomStartY = canvas.mouseY;
+			canvas.zoomStartX = canvas.mouseX;// - canvas.offsetX;
+			canvas.zoomStartY = canvas.mouseY;// - canvas.offsetY;
 
 			break;
 

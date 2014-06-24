@@ -14,9 +14,13 @@ Traffic = function ( args ) {
 	this.tMaxValue = 10;
 	this.maxVision = 300;
 
+	this.maxAngle = 0.5;
+
 	this.enableLaneChange = true;
 
 	this.vehicles = [];
+	this.vehiclesCrashed = [];
+
 	this.roads = [];
 	this.junctions = [];
 	this.generators = [];
@@ -176,7 +180,9 @@ Traffic.prototype = {
 
 		this.totalTime += this.deltaTime;
 
-		console.log(this.deltaTime, this.totalTime);
+		//console.log(this.deltaTime, this.totalTime);
+
+		document.getElementById('totalTime').innerHTML = this.totalTime;
 
 		for ( var j = 0; j < this.junctions.length; j++ ) {
 

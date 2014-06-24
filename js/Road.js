@@ -325,7 +325,14 @@ Road.prototype = {
 
 	},
 
+	updateCustom: function ( deltaTime ) {
+
+
+	},
+
 	update: function ( deltaTime ) {
+
+		this.updateCustom( deltaTime );
 
 	},
 
