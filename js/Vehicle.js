@@ -813,7 +813,7 @@ Vehicle.prototype = {
 
 		}
 
-		if ( this.lane === 0 && this.location.enableLaneChangeA ) {
+		if ( this.lane === 0 && this.location.enableLaneChangeA && this.localY >= this.traffic.minLaneChangeY) {
 		this.updateLaneDecision( deltaTime );	// Update Lane Decision
 		}
 

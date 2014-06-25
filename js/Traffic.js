@@ -25,6 +25,8 @@ Traffic = function ( args ) {
 
 	this.enableLaneChange = true;
 
+	this.minLaneChangeY = 300;
+
 	this.vehicles = [];
 	this.vehiclesCrashed = [];
 
