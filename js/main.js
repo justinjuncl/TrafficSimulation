@@ -118,7 +118,7 @@ generator1.update = function ( deltaTime ) {
 
 	if ( traffic.totalTime >= maxTime + this.startTime) {
 
-		if ( r = 50 ) traffic.pause();
+		if ( r === 50 ) traffic.pause();
 
 		set.push([timeFinishToA, timeFinishToB, timeFinishFroA, timeFinishFroB, timeFinishFroAToB, timeFinishTotal]);
 

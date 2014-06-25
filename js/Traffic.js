@@ -12,7 +12,7 @@ Traffic = function ( args ) {
 	this.zValue = 1;
 	this.tMinValue = 3;
 	this.tMaxValue = 10;
-	this.maxVision = 300;
+	this.maxVision = 500;
 
 	this.maxAngle = 0.5;
 

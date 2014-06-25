@@ -9,7 +9,7 @@ Generator = function ( args ) {
 	this.y = args.y;
 
 	this.generationRate = args.generationRate || 1;
-	this.truckRatio = args.truckRatio || 0.1;
+	this.truckRatio = args.truckRatio || 0.05;
 	this.maxVehicles = args.maxVehicles || 50;
 
 	this.carSize = args.carSize || 3;
