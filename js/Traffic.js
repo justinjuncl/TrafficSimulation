@@ -16,6 +16,13 @@ Traffic = function ( args ) {
 
 	this.maxAngle = 0.5;
 
+	this.maxSpeed = 27;
+	this.initialSpeed = 5;
+
+	this.maxAcceleration = 4;
+	this.minAcceleration = -4;
+	this.initialAcceleration = 3;
+
 	this.enableLaneChange = true;
 
 	this.vehicles = [];
@@ -65,10 +72,16 @@ Traffic.prototype = {
 
 					break;
 
-				case "Average Time Finish":
+				case "Current Time Finish":
 
-					alert( "Average Time: " + timeFinish[0] +
-					", Total Cars: " + timeFinish[1] );
+						alert("r: " + r
+							+ "\ntimeFinishToA: " + timeFinishToA
+							+ "\ntimeFinishToB: " + timeFinishToB
+							+ "\ntimeFinishFroA: " + timeFinishFroA
+							+ "\ntimeFinishFroB: " + timeFinishFroB
+							+ "\ntimeFinishFroAToB: " + timeFinishFroAToB
+							+ "\ntimeFinishTotal: " + timeFinishTotal);
+
 
 			}
 

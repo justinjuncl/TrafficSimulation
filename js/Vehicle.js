@@ -16,14 +16,14 @@ Vehicle = function ( args ) {
 
 	this.minDistance = args.minDistance === undefined ? 2 : args.minDistance;
 
-	this.acceleration = 4;
-	this.maxAcceleration = ( 3 / this.length ) * 3;
-	this.minAcceleration = - ( 3 / this.length ) * 3;
+	this.acceleration = this.traffic.initialAcceleration;
+	this.maxAcceleration = ( 3 / this.length ) * this.traffic.maxAcceleration;
+	this.minAcceleration = ( 3 / this.length ) * this.traffic.minAcceleration;
 
 	this.aKeep = false;
 	this.aTime = 0;
 
-	this.speed = args.speed || 3;
+	this.speed = args.speed || this.traffic.initialSpeed;
 	this.angle = 0;
 
 	this.safeness = [Date.now() / 1000, Infinity];
@@ -121,7 +121,7 @@ Vehicle.prototype = {
 
 		if ( this.isChangingLane ) {
 
-			return /*Math.min(*/ this.deltaSide( this.laneDecision );//, this.location.delta( this ) );
+			return Math.min(this.deltaSide( this.laneDecision ), this.location.delta( this ) );
 
 		} else {
 
@@ -149,7 +149,7 @@ Vehicle.prototype = {
 
 		if ( i === 0 ) {
 
-			return this.location.delta(this);
+			return this.location.delta( this );
 
 		} else {
 
@@ -163,7 +163,7 @@ Vehicle.prototype = {
 
 		if ( i === 0 ) {
 
-			return this.gamma;
+			return this.location.gamma( this );
 
 		} else {
 
@@ -289,7 +289,7 @@ Vehicle.prototype = {
 
 	get maxSpeed () {
 
-		return ( 3 / this.length ) * this.location.maxSpeed;
+		return ( 3 / this.length ) * this.traffic.maxSpeed;
 
 	},
 
@@ -766,13 +766,7 @@ Vehicle.prototype = {
 
 					this.setLocation( this.locationTo, this.lane, diff );
 
-					if ( this.startLane === 0 ) this.finish ( timeFinishFroA );
-					else if ( this.startLane === 1) this.finish ( timeFinishFroB );
-					if ( this.lane === 0 ) this.finish( timeFinishToA );
-					else if ( this.lane === 1 ) this.finish( timeFinishToB );
-					if ( this.lane !== this.startLane ) this.finish( timeFinishFroAToB );
-
-					this.finish( timeFinishTotal );
+					this.onFinish();
 
 				}
 
@@ -786,10 +780,7 @@ Vehicle.prototype = {
 
 	},
 
-	finish: function ( array ) {
-
-		array[0] = ( this.totalTime + array[0] * array[1] ) / ++array[1];
-
+	onFinish: function () {
 	},
 
 	updateCustom: function ( deltaTime ) {
@@ -822,7 +813,7 @@ Vehicle.prototype = {
 
 		}
 
-		if ( this.lane === 0 && this.location.enableLaneChangeA && probability( this.location.laneChangeRatio ) ) {
+		if ( this.lane === 0 && this.location.enableLaneChangeA ) {
 		this.updateLaneDecision( deltaTime );	// Update Lane Decision
 		}
 

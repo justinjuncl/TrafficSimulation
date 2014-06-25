@@ -133,14 +133,14 @@ Road.prototype = {
 
 			}
 
-			if ( y < array[0].localY ) return array[0].localY - y;
+			if ( y <= array[0].localY ) return array[0].localY - y;
 
 			for ( i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
 
-				if ( vehicle.maxLocalY < y && y <= vehicleFront.localY ) {
+				if ( vehicle.maxLocalY <= y && y <= vehicleFront.localY ) {
 
 					return vehicleFront.localY - y;
 
@@ -166,16 +166,16 @@ Road.prototype = {
 
 			if ( !array[0] ) return y;
 
-			if ( y < array[0].localY ) return y;
+			if ( y <= array[0].localY ) return y;
 
-			if ( y > array[array.length - 1].maxLocalY ) return y - array[array.length - 1].maxLocalY;
+			if ( y >= array[array.length - 1].maxLocalY ) return y - array[array.length - 1].maxLocalY;
 
 			for ( i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
 
-				if ( vehicle.maxLocalY < y && y < vehicleFront.localY ) {
+				if ( vehicle.maxLocalY <= y && y <= vehicleFront.localY ) {
 
 					return y - vehicle.maxLocalY;
 
