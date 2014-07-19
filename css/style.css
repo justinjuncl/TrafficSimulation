@@ -22,7 +22,6 @@ form {
 #inputsContainer {
 
 	margin: 10px;
-	background-color: red;
 	width: 500px;
 
 }
@@ -34,7 +33,7 @@ form {
 }
 
 canvas {
-	margin: 0 auto;
+	margin: 0 10px 10px;
 	border: 1px solid black;
 }
 
