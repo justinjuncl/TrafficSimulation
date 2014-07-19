@@ -87,6 +87,8 @@ Generator.prototype = {
 
 	update: function ( deltaTime ) {
 
+		return;
+
 		if (!this.to) {
 
 			return;
@@ -104,7 +106,7 @@ Generator.prototype = {
 				this.vehiclesCount++;
 
 				var randomLane = Math.floor( Math.random() * this.laneCount );
-				this.insertIntoLane( randomLane );
+				this.insertIntoLane( randomLane, -1 );
 
 			}
 

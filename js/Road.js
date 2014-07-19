@@ -24,9 +24,17 @@ Road.prototype = {
 
 	},
 
+	get position() {
+
+		return this.from.position.addVector( this.direction.multiplyScalar(20) );
+
+	},
+
 	get vector() {
 
-		return new Vector2( this.to.x - this.from.x, this.to.y - this.from.y );
+		var v = new Vector2( this.to.x - this.from.x, this.to.y - this.from.y );
+
+		return v.subVector( v.normal.multiplyScalar(40) );
 
 	},
 
@@ -45,12 +53,6 @@ Road.prototype = {
 	get tangent() {
 
 		return this.vector.tangent;
-
-	},
-
-	get position() {
-
-		return this.from.position;
 
 	},
 
@@ -309,17 +311,50 @@ Road.prototype = {
 
 			this.from.to = this;
 
+			//GENERATION FUNCTION
+
+			this.time = 0;
+			this.totalTime = 0;
+			this.vehiclesCount = 0;
+
+			this.generationRate = this.from.generationRate || 1;
+			this.truckRatio = this.from.truckRatio || 0.05;
+			this.maxVehicles = this.from.maxVehicles || 50;
+
+			this.carSize = this.from.carSize || 3;
+			this.truckSize = this.from.truckSize || 5;
+
+
 		}
 
 		if ( this.from.type == "Junction" ) {
 
-			this.from.outGoing.push(this);
+			this.from.outGoingUnsorted.push(this);
 
 		}
 
 		if ( this.to.type == "Junction" ) {
 
-			this.to.inComing.push(this);
+			this.to.inComingUnsorted.push(this);
+
+		}
+
+	},
+
+	insertIntoLane: function ( lane, jD ) {
+
+		var size = ( probability( this.truckRatio ) ) ? this.truckSize : this.carSize;
+
+		if ( !this.vehicleAtLocation( lane, size / 2 ) ) {
+
+			this.traffic.vehicle({
+				length: size,
+				location: this,
+				lane: lane,
+				startLane: lane,
+				junctionDecision: ( jD !== undefined ) ? jD : randomWeighted([-1, 0, 1], [1, 2, 1]),
+				minDistance: randomDistribution( 2, 1 )
+			});
 
 		}
 
@@ -327,12 +362,30 @@ Road.prototype = {
 
 	updateCustom: function ( deltaTime ) {
 
+		this.time += deltaTime;
+		this.totalTime += deltaTime;
+
+		if ( this.vehiclesCount < this.maxVehicles ) {
+
+			if ( this.time >= this.generationRate ) {
+
+				this.time -= this.generationRate;
+				this.vehiclesCount++;
+
+				var randomLane = Math.floor( Math.random() * this.laneCount );
+				this.insertIntoLane( randomLane );
+
+			}
+
+		}
 
 	},
 
 	update: function ( deltaTime ) {
 
-		this.updateCustom( deltaTime );
+		if ( this.from.type === "Generator" ) {
+			this.updateCustom( deltaTime );
+		}
 
 	},
 

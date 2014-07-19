@@ -1,7 +1,5 @@
 var traffic, canvas,
-	generator1, generator2,
-	road1,
-	button1, button2;
+	generator1, generator2;
 
 var timeFinishToA = [0, 0, 0],
 	timeFinishToB = [0, 0, 0],
@@ -15,14 +13,10 @@ var startLaneChange = 100;
 var vehicleMaxCount = 200;
 var maxTime = 60 * 10;
 
-var set = [];
-
-var laneCount = 2;
-
 function init() {
 
 	traffic = new Traffic({
-		width: 1200,
+		width: 500,
 		height: 500,
 		scale: 1,
 		fastForward: 3
@@ -31,8 +25,6 @@ function init() {
 	generator1 = traffic.generator({
 		x: 100,
 		y: 100,
-		maxVehicles: Infinity,
-		generationRate: 2,
 	});
 
 	generator2 = traffic.generator({
@@ -40,36 +32,32 @@ function init() {
 		y: 100
 	});
 
-	road1 = traffic.road({
+	traffic.road({
 		from: generator1,
-		to: generator2,
-		laneCount: laneCount
+		to: generator2
 	});
 
-	button1 = traffic.button({
+	traffic.button({
 		label: "Start",
 		id: "StartButton",
+		func: "start",
 	});
 
-	button2 = traffic.button({
+	traffic.button({
 		label: "Pause",
 		id: "PauseButton",
+		func: "pause"
 	});
 
-	button3 = traffic.button({
-		label: "Reset Simulation",
-		id: "ResetSimButton",
-	});
-
-	button3 = traffic.button({
-		label: "Current Time Finish",
-		id: "CurTimeFinButton",
+	traffic.button({
+		label: "Reset",
+		id: "ResetButton",
+		func: "resetSimulation"
 	});
 
 }
 
 init();
-traffic.renderBlocks();
 
 generator1.aGen = 2;
 generator1.bGen = 3;
@@ -182,4 +170,4 @@ function logTimeFinish () {
 
 }
 
-//traffic.vehicles.forEach( function (element, index, array) { console.log("[" + index + "] " + element.minDistance); } )
+// traffic.vehicles.forEach( function (element, index, array) { console.log("[" + index + "] " + element.minDistance); } )

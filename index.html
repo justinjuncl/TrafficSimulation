@@ -8,24 +8,14 @@
 	</head>
 
 	<body>
-	</body>
 
-	<script src="js/Math.js"></script>
-    <script src="js/Vector2.js"></script>
-    <script src="js/Rectangle.js"></script>
-    <script src="js/Bezier.js"></script>
-    <script src="js/Canvas.js"></script>
-    <script src="js/Traffic.js"></script>
-    <script src="js/Generator.js"></script>
-    <script src="js/Vehicle.js"></script>
-    <script src="js/Road.js"></script>
-    <script src="js/Junction.js"></script>
+    	<script src="TrafficSimulation.js"></script>
 
-    <script src="js/Button.js"></script>
+        <div id="trafficContainer"></div>
 
-    <script src="js/main.js"></script>
+        <script src="main.js"></script>
 
-    <form>
+<!--     <form>
         A: <input value="4/11" size="3" onchange="traffic.aValue = this.value">
         C: <input value="2" size="3" onchange="traffic.cValue = this.value">
         E: <input value="1" size="3" onchange="traffic.eValue = this.value">
@@ -48,7 +38,7 @@
         Init Speed: <input value="5" size="3" onchange="traffic.intialSpeed = this.value">
         Fast Forward: <input value="5" size="2" onchange="traffic.fastForward = this.value">
         Truck Ratio: <input value="0.05" size="2" onchange="generator1.truckRatio = this.value">
-<!--         Enable Lane Change <input type="checkbox" checked="checked" size="3" onchange="traffic.enableLaneChange = this.checked"> -->
+        Enable Lane Change <input type="checkbox" checked="checked" size="3" onchange="traffic.enableLaneChange = this.checked">
     </form>
     <form>
         A Gen Rate: <input value="2" size="2" onchange="generator1.aGen = this.value">
@@ -59,6 +49,8 @@
         Min Lane Change Y: <input value="300" size="4" onchange="traffic.minLaneChangeY = this.value">
         Road Length: <input value="1000" size="5" onchange="generator2.x = parseInt(generator1.x) + parseInt(this.value)">
         Total time: <label id="totalTime"></label>
-    </form>
+    </form> -->
+
+    </body>
 
 </head>

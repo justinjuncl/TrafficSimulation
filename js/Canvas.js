@@ -24,23 +24,27 @@ Canvas = function ( args ) {
 	this.width = args.width;
 	this.height = args.height;
 
+	this.canvasContainer = document.createElement( "div" );
+	this.canvasContainer.id = "canvasContainer";
+	this.traffic.trafficContainer.appendChild( this.canvasContainer );
+
 	this.canvasBlocks = document.createElement( "canvas" );
 	this.canvasBlocks.width = this.width;
 	this.canvasBlocks.height = this.height;
 	this.canvasBlocks.id = "canvasBlocks";
-	document.body.appendChild( this.canvasBlocks );
+	this.canvasContainer.appendChild( this.canvasBlocks );
 	this.contextBlocks = this.canvasBlocks.getContext('2d');
 
 	this.canvasVehicles = document.createElement( "canvas" );
 	this.canvasVehicles.width = this.width;
 	this.canvasVehicles.height = this.height;
 	this.canvasVehicles.id = "canvasVehicles";
-	document.body.appendChild( this.canvasVehicles );
+	this.canvasContainer.appendChild( this.canvasVehicles );
 	this.contextVehicles = this.canvasVehicles.getContext('2d');
 
 	this.sensitivity = args.sensitivity || 1;
 
-	this.scale = 1;
+	this.scale = args.scale || 1;
 
 	this.offsetX = 0;
 	this.offsetY = 0;
@@ -116,9 +120,11 @@ Canvas.prototype = {
 
 	init: function () {
 
-		this.contextBlocks.setTransform( 1, 0, 0, 1, 0, 0 );
+		this.contextBlocks.setTransform( 1, 0, 0, -1, 0, 0 );
+		this.contextVehicles.setTransform( 1, 0, 0, -1, 0, 0 );
 
-		this.contextVehicles.setTransform( 1, 0, 0, 1, 0, 0 );
+		this.contextBlocks.translate( 0, -this.height );
+		this.contextVehicles.translate( 0, -this.height );
 
 		canvas = this;
 
@@ -135,8 +141,6 @@ Canvas.prototype = {
 		this.contextBlocks.clearRect( 0, 0, this.width, this.height );
 		this.contextBlocks.restore();
 
-		this.contextBlocks.fillRect(0, 0, 10, 10);
-
 	},
 
 	clearVehicles: function () {
@@ -152,9 +156,9 @@ Canvas.prototype = {
 
 		this.clearBlocks();
 
-		this.renderRoads();
 		this.renderJunctions();
 		this.renderGenerators();
+		this.renderRoads();
 
 	},
 
@@ -162,11 +166,44 @@ Canvas.prototype = {
 	// Junctions
 	// ------------------------------------------
 
-	renderJunctions: function ( ) {
+	renderJunctions: function () {
+
+		var junctions = this.traffic.junctions;
+
+		this.contextBlocks.save();
+		this.contextBlocks.fillStyle = this.darkGreyColor;
+		for ( var j = 0; j < junctions.length; j++ ) {
+
+			this.renderJunctionOutline( junctions[j] );
+
+		}
+		this.contextBlocks.restore();
+
+		this.contextBlocks.save();
+		this.contextBlocks.fillStyle = this.greyColor;
+		for ( var j = 0; j < junctions.length; j++ ) {
+
+			this.renderJunction( junctions[j] );
+
+		}
+		this.contextBlocks.restore();
 
 	},
 
 	renderJunction: function ( junction ) {
+
+		var position = junction.position;
+
+		this.contextBlocks.fillRect( position.x - 20, position.y - 20, 40, 40 );
+
+	},
+
+	renderJunctionOutline: function ( junction ) {
+
+		var position = junction.position;
+		var o = this.outlineWidth;
+
+		this.contextBlocks.fillRect( position.x - 20 - o, position.y - 20 - o, 40 + 2 * o, 40 + 2 * o );
 
 	},
 
@@ -177,6 +214,15 @@ Canvas.prototype = {
 	renderGenerators: function () {
 
 		var generators = this.traffic.generators;
+
+		this.contextBlocks.save();
+		this.contextBlocks.fillStyle = this.darkGreyColor;
+		for ( var g = 0; g < generators.length; g++ ) {
+
+			this.renderGeneratorOutline( generators[g] );
+
+		}
+		this.contextBlocks.restore();
 
 		this.contextBlocks.save();
 		this.contextBlocks.fillStyle = this.yellowColor;
@@ -193,12 +239,24 @@ Canvas.prototype = {
 
 		if ( generator.to === undefined ) return;
 
-		var start = generator.position;
-		var end = generator.direction.multiplyScalar( this.generatorLength )
-									.addVector( generator.tangent.multiplyScalar( generator.width + this.outlineWidth ) );
+		// var start = generator.position;
+		// var end = generator.direction.multiplyScalar( this.generatorLength )
+		// 							.addVector( generator.tangent.multiplyScalar( generator.width + this.outlineWidth ) );
 
-		this.contextBlocks.fillRect( start.x, start.y, end.x, end.y );
+		// this.contextBlocks.fillRect( start.x, start.y, end.x, end.y );
 
+		var position = generator.position;
+
+		this.contextBlocks.fillRect( position.x - 20, position.y - 20, 40, 40 );
+
+	},
+
+	renderGeneratorOutline: function ( generator ) {
+
+		var position = generator.position;
+		var o = this.outlineWidth;
+
+		this.contextBlocks.fillRect( position.x - 20 - o, position.y - 20 - o, 40 + 2 * o, 40 + 2 * o );
 
 	},
 
@@ -382,8 +440,8 @@ function mouseMoveListener ( e ) {
 		canvas.offsetX += panDeltaX;
 		canvas.offsetY += panDeltaY;
 
-		canvas.contextBlocks.translate( panDeltaX, panDeltaY );
-		canvas.contextVehicles.translate( panDeltaX, panDeltaY );
+		canvas.contextBlocks.translate( panDeltaX, -panDeltaY );
+		canvas.contextVehicles.translate( panDeltaX, -panDeltaY );
 
 	}
 
@@ -396,9 +454,9 @@ function mouseMoveListener ( e ) {
 		canvas.offsetX = canvas.zoomStartX - canvas.scale * canvas.zoomStartX;
 		canvas.offsetY = canvas.zoomStartY - canvas.scale * canvas.zoomStartY;
 
-		canvas.contextBlocks.setTransform(canvas.scale, 0, 0, canvas.scale, canvas.offsetX, canvas.offsetY);
+		canvas.contextBlocks.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
 
-		canvas.contextVehicles.setTransform(canvas.scale, 0, 0, canvas.scale, canvas.offsetX, canvas.offsetY);
+		canvas.contextVehicles.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
 
 	}
 

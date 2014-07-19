@@ -12,12 +12,12 @@ Traffic = function ( args ) {
 	this.zValue = 1;
 	this.tMinValue = 3;
 	this.tMaxValue = 10;
-	this.maxVision = 500;
+	this.maxVision = 300;
 
 	this.maxAngle = 0.5;
 
 	this.maxSpeed = 27;
-	this.initialSpeed = 5;
+	this.initialSpeed = 10;
 
 	this.maxAcceleration = 4;
 	this.minAcceleration = -4;
@@ -25,7 +25,7 @@ Traffic = function ( args ) {
 
 	this.enableLaneChange = true;
 
-	this.minLaneChangeY = 300;
+	this.minLaneChangeY = 100;
 
 	this.vehicles = [];
 	this.vehiclesCrashed = [];
@@ -38,6 +38,20 @@ Traffic = function ( args ) {
 
 	this.fastForward = args.fastForward || 1;
 
+	this.trafficContainer = document.getElementById("trafficContainer");
+
+	if ( this.trafficContainer === null ) {
+
+		this.trafficContainer = document.createElement( "div" );
+		this.trafficContainer.id = "trafficContainer";
+		document.body.appendChild( this.trafficContainer );
+
+	}
+
+	this.inputsContainer = document.createElement( "div" );
+	this.inputsContainer.id = "inputsContainer";
+	this.trafficContainer.appendChild( this.inputsContainer );
+
 	this.canvas( args );
 
 };
@@ -46,50 +60,21 @@ Traffic.prototype = {
 
 	button: function ( args ) {
 
-		var button = document.createElement("input");
+		var button = document.createElement( "input" );
 
 		button.type = "button";
 		button.value = args.label;
-		button.id = args.id;
+		button.id = args.label + "Button";
+
+		var self = this;
 
 		button.onclick = function () {
 
-			switch ( button.value ) {
-
-				case "Start":
-
-					traffic.start();
-
-					break;
-
-				case "Pause":
-
-					traffic.pause();
-
-					break;
-
-				case "Reset Simulation":
-
-					traffic.resetSimulation();
-
-					break;
-
-				case "Current Time Finish":
-
-						alert("r: " + r
-							+ "\ntimeFinishToA: " + timeFinishToA
-							+ "\ntimeFinishToB: " + timeFinishToB
-							+ "\ntimeFinishFroA: " + timeFinishFroA
-							+ "\ntimeFinishFroB: " + timeFinishFroB
-							+ "\ntimeFinishFroAToB: " + timeFinishFroAToB
-							+ "\ntimeFinishTotal: " + timeFinishTotal);
-
-
-			}
+			self[args.func]();
 
 		};
 
-		document.body.appendChild( button );
+		this.inputsContainer.appendChild( button );
 
 	},
 
@@ -124,6 +109,20 @@ Traffic.prototype = {
 		var road = new Road( args );
 		this.roads.push( road );
 		return road;
+
+	},
+
+	link: function ( link1, link2 ) {
+
+		this.road({
+			from: link1,
+			to: link2
+		});
+
+		this.road({
+			from: link2,
+			to: link1
+		});
 
 	},
 
@@ -195,9 +194,9 @@ Traffic.prototype = {
 
 		this.totalTime += this.deltaTime;
 
-		//console.log(this.deltaTime, this.totalTime);
+		// console.log(this.deltaTime, this.totalTime);
 
-		document.getElementById('totalTime').innerHTML = this.totalTime;
+		// document.getElementById('totalTime').innerHTML = this.totalTime;
 
 		for ( var j = 0; j < this.junctions.length; j++ ) {
 
@@ -284,6 +283,25 @@ Traffic.prototype = {
 		console.log("tMin: " + this.tMinValue);
 		console.log("tMax: " + this.tMaxValue);
 		console.log("Max Vision: " + this.maxVision);
+
+	},
+
+	resize: function ( newWidth, newHeight ) {
+
+		this.width = newWidth;
+		this.height = newHeight;
+
+		var canvas = this.canvas;
+		canvas.width = newWidth;
+		canvas.height = newHeight;
+
+		var canvasBlocks = this.canvas.canvasBlocks;
+		canvasBlocks.width = newWidth;
+		canvasBlocks.height = newHeight;
+
+		var canvasVehicles = this.canvas.canvasVehicles;
+		canvasVehicles.width = newWidth;
+		canvasVehicles.height = newHeight;
 
 	}
 

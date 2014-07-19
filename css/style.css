@@ -19,13 +19,23 @@ form {
 	margin-left: 5px;
 }
 
-input {
-	position: relative;
-	z-index: 2;
+#inputsContainer {
+
+	margin: 10px;
+	background-color: red;
+	width: 500px;
+
+}
+
+#canvasContainer {
+
+	overflow: auto;
+
 }
 
 canvas {
 	margin: 0 auto;
+	border: 1px solid black;
 }
 
 #canvasBlocks {

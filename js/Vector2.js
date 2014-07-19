@@ -1,3 +1,4 @@
+
 Vector2 = function ( x, y ) {
 
 	this.x = x || 0;
@@ -86,13 +87,13 @@ Vector2.prototype = {
 
     },
 
-    get lengthSquared() {
+    get lengthSquared () {
 
         return this.x * this.x + this.y + this.y;
 
     },
 
-    get length() {
+    get length () {
 
         return Math.sqrt( this.x * this.x + this.y * this.y );
 
@@ -104,13 +105,13 @@ Vector2.prototype = {
 
     },
 
-	get clone() {
+	get clone () {
 
 		return new Vector2( this.x, this.y );
 
 	},
 
-    get normal() {
+    get normal () {
 
         return this.clone.normalize();
 
@@ -119,20 +120,20 @@ Vector2.prototype = {
     // 0 1
     // -1 0
 
-    get tangent() {
+    get tangent () {
 
         return new Vector2( this.normal.y, -this.normal.x );
 
     },
 
-    get angleRad() {
+    get angleRad () {
 
         return Math.acos( this.x / this.length );
     },
 
-    get angleDeg() {
+    get angleDeg () {
 
-        return this.angleDeg * 180 / Math.PI;
+        return this.angleRad * 180 / Math.PI;
 
     },
 

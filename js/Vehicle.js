@@ -193,6 +193,12 @@ Vehicle.prototype = {
 
 			case "Road":
 
+				if ( this.location.to.type === "Junction" ) {
+
+					return this.location.to.to( this.location, this.junctionDecision );
+
+				}
+
 				return this.location.to;
 
 				break;
@@ -624,11 +630,10 @@ Vehicle.prototype = {
 	updateSpeed: function ( deltaTime ) {
 
 		var s = this.speed;
-		var sF = ( this.vehicleFront ) ? this.vehicleFront.speed : 0;
 
-		var svf = ( this.vehicleFront ) ? this.vehicleFront.speed : Infinity;
+		var svf = ( this.vehicleFront ) ? this.vehicleFront.speed : s;
 
-		var svsf = Infinity;
+		var svsf = s;
 
 		if ( this.isChangingLane ) {
 			svsf = this.location.vehicleFrontLocation( this.lane, this.maxLocalY ) ? this.location.vehicleFrontLocation( this.lane, this.maxLocalY ).speed : Infinity;
@@ -764,9 +769,8 @@ Vehicle.prototype = {
 
 				} else {
 
+					this.location.vehiclesCount--;
 					this.setLocation( this.locationTo, this.lane, diff );
-
-					this.onFinish();
 
 				}
 
@@ -780,11 +784,7 @@ Vehicle.prototype = {
 
 	},
 
-	onFinish: function () {
-	},
-
 	updateCustom: function ( deltaTime ) {
-
 
 	},
 
@@ -792,7 +792,7 @@ Vehicle.prototype = {
 
 		if ( this.isStationary ) return;
 
-		if ( this.traffic.checkCollision ) this.checkCollision();
+		//if ( this.traffic.checkCollision ) this.checkCollision();
 
 		if ( this.speed !== 0 ) {
 
@@ -806,14 +806,14 @@ Vehicle.prototype = {
 
 		}
 
-		if (this.stopTime >= 20) {
+		if (this.stopTime >= 20 && this.delta <= 0) {
 
 			this.removeLocation();
 			this.removeVehicle();
 
 		}
 
-		if ( this.lane === 0 && this.location.enableLaneChangeA && this.localY >= this.traffic.minLaneChangeY) {
+		if ( this.traffic.enableLaneChange && this.localY >= this.traffic.minLaneChangeY ) {
 		this.updateLaneDecision( deltaTime );	// Update Lane Decision
 		}
 
