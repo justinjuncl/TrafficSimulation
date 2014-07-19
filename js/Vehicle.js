@@ -370,7 +370,7 @@ Vehicle.prototype = {
 
 				}
 
-				for ( i = 0; i < location.lane[lane].length - 1; i++ ) {
+				for ( var i = 0; i < location.lane[lane].length - 1; i++ ) {
 					if ( location.lane[lane][i].localY < this.localY && this.localY < location.lane[lane][i + 1].localY ) {
 						location.lane[ lane ].splice( i + 1, 0, this);
 						break;

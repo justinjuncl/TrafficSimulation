@@ -137,7 +137,7 @@ Road.prototype = {
 
 			if ( y <= array[0].localY ) return array[0].localY - y;
 
-			for ( i = 0; i < array.length - 1; i++ ) {
+			for ( var i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
@@ -172,7 +172,7 @@ Road.prototype = {
 
 			if ( y >= array[array.length - 1].maxLocalY ) return y - array[array.length - 1].maxLocalY;
 
-			for ( i = 0; i < array.length - 1; i++ ) {
+			for ( var i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
@@ -213,7 +213,7 @@ Road.prototype = {
 
 		if ( array.length === 0 ) return null;
 
-		for ( i = 0; i < array.length; i++ ) {
+		for ( var i = 0; i < array.length; i++ ) {
 
 			vehicle = array[i];
 
@@ -239,7 +239,7 @@ Road.prototype = {
 
 		if ( y < array[0].localY ) return array[0];
 
-		for ( i = 0; i < array.length - 1; i++ ) {
+		for ( var i = 0; i < array.length - 1; i++ ) {
 
 			vehicle = array[i];
 			vehicleFront = array[i + 1];
@@ -266,7 +266,7 @@ Road.prototype = {
 
 		if ( y > array[array.length - 1].maxLocalY ) return array[array.length - 1];
 
-		for ( i = 0; i < array.length - 1; i++ ) {
+		for ( var i = 0; i < array.length - 1; i++ ) {
 
 			vehicle = array[i];
 			vehicleFront = array[i + 1];
@@ -289,13 +289,13 @@ Road.prototype = {
 
 		this.signal = [];
 
-		for (var i = 0; i < this.laneCount; i++ ) {
+		for ( var i = 0; i < this.laneCount; i++ ) {
 
 			this.signal.push(true);
 
 		}
 
-		for (var i = 0; i < this.laneCount; i++) {
+		for ( var i = 0; i < this.laneCount; i++ ) {
 
 			this.lane.push( [] );
 

@@ -5,8 +5,8 @@ var traffic, canvas,
 function init() {
 
 	traffic = new Traffic({
-		width: 500,
-		height: 500,
+		width: 700,
+		height: 700,
 		fastForward: 3
 	});
 

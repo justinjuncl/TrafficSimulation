@@ -711,6 +711,8 @@ Junction = function ( args ) {
     this.inComingUnsorted = [];
     this.outGoingUnsorted = [];
 
+    this.signalRate = 20;
+
 };
 
 Junction.prototype = {
@@ -736,8 +738,9 @@ Junction.prototype = {
 	init: function () {
 
 		this.time = 0;
+		this.totalTime = 0;
 
-		for ( r = 0; r < this.inComingUnsorted.length; r++ ) {
+		for ( var r = 0; r < this.inComingUnsorted.length; r++ ) {
 
 			var road = this.inComingUnsorted[r];
 
@@ -767,7 +770,7 @@ Junction.prototype = {
 
 		}
 
-		for ( r = 0; r < this.outGoingUnsorted.length; r++ ) {
+		for ( var r = 0; r < this.outGoingUnsorted.length; r++ ) {
 
 			var road = this.outGoingUnsorted[r];
 
@@ -802,16 +805,36 @@ Junction.prototype = {
 
 		this.signal = [[], [], [], []];
 
-		for ( r = 0; r < this.inComing.length; r++ ) {
+		for ( var r = 0; r < this.inComing.length; r++ ) {
 
 			if ( this.inComing[r] ) {
 
-				for ( l = 0; l < this.inComing[r].laneCount; l++ ) {
+				for ( var l = 0; l < this.inComing[r].laneCount; l++ ) {
 
 					this.signal[r].push( true );
 
 				}
 
+			}
+
+		}
+
+		var s, t;
+
+		for ( var a = 0; a < this.signal.length; a++ ) {
+
+			if ( this.signal[a] ) {
+				this.minIndex = a;
+				break;
+			}
+
+		}
+
+		for ( var a = this.signal.length - 1; a >= 0; a-- ) {
+
+			if ( this.signal[a] ) {
+				this.maxIndex = a;
+				break;
 			}
 
 		}
@@ -824,7 +847,7 @@ Junction.prototype = {
 		var index = this.inComing.indexOf( road );
 		var nextIndex;
 
-		for ( i = 0; i < this.outGoing.length; i++ ) {
+		for ( var i = 0; i < this.outGoing.length; i++ ) {
 
 			if ( this.outGoing[i] !== null && i !== index ) {
 
@@ -842,6 +865,36 @@ Junction.prototype = {
 	update: function ( deltaTime ) {
 
 		this.time += deltaTime;
+		this.totalTime += deltaTime;
+
+		if ( this.time >= this.signalRate ) {
+
+			this.time -= this.signalRate;
+
+			if ( probability(0.5) ) {
+
+				this.invertSignal(this.minIndex);
+
+			}
+
+			if ( probability(0.5) ) {
+
+				this.invertSignal(this.maxIndex);
+
+			}
+
+		}
+
+	},
+
+	invertSignal: function ( r ) {
+
+		for ( var l = 0; l < this.signal[r].length; l++ ) {
+
+			this.signal[r][l] = !this.signal[r][l];
+			this.inComing[r].signal[l] = !this.inComing[r].signal[l];
+
+		}
 
 	},
 
@@ -854,24 +907,10 @@ Junction.prototype = {
 
 		} else {
 
-			for ( a = 0; a < this.signal[r].length; a++ ) {
+			for ( var a = 0; a < this.signal[r].length; a++ ) {
 
 				this.signal[r][a] = l;
 				this.inComing[r].signal[a] = l;
-
-			}
-
-		}
-
-	},
-
-	changeRoadSignal: function () {
-
-		for ( r = 0; i < this.inComing.length; r++ ) {
-
-			for ( l = 0; l < this.inComing[r].laneCount; l++ ) {
-
-				this.inComing[r].signal[l] = this.signal[r][l];
 
 			}
 
@@ -1093,7 +1132,7 @@ Road.prototype = {
 
 			if ( y <= array[0].localY ) return array[0].localY - y;
 
-			for ( i = 0; i < array.length - 1; i++ ) {
+			for ( var i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
@@ -1128,7 +1167,7 @@ Road.prototype = {
 
 			if ( y >= array[array.length - 1].maxLocalY ) return y - array[array.length - 1].maxLocalY;
 
-			for ( i = 0; i < array.length - 1; i++ ) {
+			for ( var i = 0; i < array.length - 1; i++ ) {
 
 				vehicle = array[i];
 				vehicleFront = array[i + 1];
@@ -1169,7 +1208,7 @@ Road.prototype = {
 
 		if ( array.length === 0 ) return null;
 
-		for ( i = 0; i < array.length; i++ ) {
+		for ( var i = 0; i < array.length; i++ ) {
 
 			vehicle = array[i];
 
@@ -1195,7 +1234,7 @@ Road.prototype = {
 
 		if ( y < array[0].localY ) return array[0];
 
-		for ( i = 0; i < array.length - 1; i++ ) {
+		for ( var i = 0; i < array.length - 1; i++ ) {
 
 			vehicle = array[i];
 			vehicleFront = array[i + 1];
@@ -1222,7 +1261,7 @@ Road.prototype = {
 
 		if ( y > array[array.length - 1].maxLocalY ) return array[array.length - 1];
 
-		for ( i = 0; i < array.length - 1; i++ ) {
+		for ( var i = 0; i < array.length - 1; i++ ) {
 
 			vehicle = array[i];
 			vehicleFront = array[i + 1];
@@ -1245,13 +1284,13 @@ Road.prototype = {
 
 		this.signal = [];
 
-		for (var i = 0; i < this.laneCount; i++ ) {
+		for ( var i = 0; i < this.laneCount; i++ ) {
 
 			this.signal.push(true);
 
 		}
 
-		for (var i = 0; i < this.laneCount; i++) {
+		for ( var i = 0; i < this.laneCount; i++ ) {
 
 			this.lane.push( [] );
 
@@ -2184,7 +2223,7 @@ Vehicle.prototype = {
 
 				}
 
-				for ( i = 0; i < location.lane[lane].length - 1; i++ ) {
+				for ( var i = 0; i < location.lane[lane].length - 1; i++ ) {
 					if ( location.lane[lane][i].localY < this.localY && this.localY < location.lane[lane][i + 1].localY ) {
 						location.lane[ lane ].splice( i + 1, 0, this);
 						break;
