@@ -506,7 +506,9 @@ Vehicle.prototype = {
 
 		var s = vehicleSideBehind.speed;
 
-		if ( s > this.speed ) {
+		if ( this.speed === 0 ) return true;
+
+		if ( s > 3 * this.speed ) {
 
 			return false;
 
