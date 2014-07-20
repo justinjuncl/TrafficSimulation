@@ -1,11 +1,11 @@
 var traffic, canvas,
-	generator1,
+	generator1, generator2, generator3,
 	junction1, junction2, junction3;
 
 function init() {
 
 	traffic = new Traffic({
-		width: 700,
+		width: 800,
 		height: 700,
 		fastForward: 3
 	});
@@ -14,6 +14,16 @@ function init() {
 		x: 100,
 		y: 100,
 		generationRate: 1.5
+	});
+
+	generator2 = traffic.generator({
+		x: 640,
+		y: 0
+	});
+
+	generator3 = traffic.generator({
+		x: 740,
+		y: 100
 	});
 
 	junction1 = traffic.junction({
@@ -51,19 +61,24 @@ function init() {
 		generator1
 	);
 
+	traffic.road({
+		from: junction3,
+		to: generator2
+	});
+
+	traffic.road({
+		from: junction3,
+		to: generator3
+	});
+
 	traffic.button({
 		label: "Start",
-		func: "start",
+		func: "start"
 	});
 
 	traffic.button({
 		label: "Pause",
-		func: "pause"
-	});
-
-	traffic.button({
-		label: "Reset",
-		func: "resetSimulation"
+		func: "pause",
 	});
 
 }

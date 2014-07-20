@@ -20,7 +20,7 @@ Traffic = function ( args ) {
 	this.initialSpeed = 10;
 
 	this.maxAcceleration = 4;
-	this.minAcceleration = -4;
+	this.minAcceleration = -5;
 	this.initialAcceleration = 3;
 
 	this.enableLaneChange = true;
@@ -259,6 +259,8 @@ Traffic.prototype = {
 
 		}
 
+		this.renderBlocks();
+
 	},
 
 	renderBlocks: function () {
@@ -302,6 +304,13 @@ Traffic.prototype = {
 		var canvasVehicles = this.canvas.canvasVehicles;
 		canvasVehicles.width = newWidth;
 		canvasVehicles.height = newHeight;
+
+		canvas.contextBlocks.setTransform( 1, 0, 0, -1, 0, 0 );
+		canvas.contextVehicles.setTransform( 1, 0, 0, -1, 0, 0 );
+
+		canvas.contextBlocks.translate( 0, -canvas.height );
+		canvas.contextVehicles.translate( 0, -canvas.height );
+
 
 	}
 

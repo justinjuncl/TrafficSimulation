@@ -455,7 +455,6 @@ function mouseMoveListener ( e ) {
 		canvas.offsetY = canvas.zoomStartY - canvas.scale * canvas.zoomStartY;
 
 		canvas.contextBlocks.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
-
 		canvas.contextVehicles.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
 
 	}

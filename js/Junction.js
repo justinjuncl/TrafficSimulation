@@ -14,8 +14,8 @@ Junction = function ( args ) {
     this.x = args.x;
     this.y = args.y;
 
-    this.inComing = [null, null, null, null];
-    this.outGoing = [null, null, null, null];
+    this.inComing = [undefined, undefined, undefined, undefined];
+    this.outGoing = [undefined, undefined, undefined, undefined];
 
     this.inComingUnsorted = [];
     this.outGoingUnsorted = [];
@@ -128,8 +128,6 @@ Junction.prototype = {
 
 		}
 
-		var s, t;
-
 		for ( var a = 0; a < this.signal.length; a++ ) {
 
 			if ( this.signal[a] ) {
@@ -148,26 +146,47 @@ Junction.prototype = {
 
 		}
 
+		this.invertSignal(this.minIndex);
 
 	},
 
 	to: function ( road, decision ) {
 
 		var index = this.inComing.indexOf( road );
+
 		var nextIndex;
+		var array = this.outGoing;
+		var count = 0;
 
-		for ( var i = 0; i < this.outGoing.length; i++ ) {
+		for ( var i = 0; i < array.length; i++ ) {
 
-			if ( this.outGoing[i] !== null && i !== index ) {
+			if ( typeof array[i] === "undefined" ) {
 
-				nextIndex = i;
+				count++;
 
 			}
 
 		}
 
-		return this.outGoing[nextIndex];
-//		return this.outGoing[(index + decision + 2) % 4];
+		if ( array.length - count === 2 ) {
+
+			for ( var i = 0; i < this.outGoing.length; i++ ) {
+
+				if ( this.outGoing[i] !== undefined && i !== index ) {
+
+					nextIndex = i;
+
+				}
+
+			}
+
+			return this.outGoing[nextIndex];
+
+		} else {
+
+			return this.outGoing[(index + decision + 2) % 4];
+
+		}
 
 	},
 
@@ -180,17 +199,8 @@ Junction.prototype = {
 
 			this.time -= this.signalRate;
 
-			if ( probability(0.5) ) {
-
-				this.invertSignal(this.minIndex);
-
-			}
-
-			if ( probability(0.5) ) {
-
-				this.invertSignal(this.maxIndex);
-
-			}
+			this.invertSignal(this.minIndex);
+			this.invertSignal(this.maxIndex);
 
 		}
 
@@ -204,6 +214,8 @@ Junction.prototype = {
 			this.inComing[r].signal[l] = !this.inComing[r].signal[l];
 
 		}
+
+		this.traffic.renderBlocks();
 
 	},
 

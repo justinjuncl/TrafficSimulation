@@ -14,6 +14,8 @@ Road = function ( args ) {
 
 	this.init();
 
+	this.safetyDistance = 5;
+
 };
 
 Road.prototype = {
@@ -73,7 +75,7 @@ Road.prototype = {
 
 			} else {
 
-				return this.length - vehicle.maxLocalY;
+				return this.length - this.safetyDistance - vehicle.maxLocalY;
 
 			}
 
