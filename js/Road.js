@@ -14,7 +14,7 @@ Road = function ( args ) {
 
 	this.init();
 
-	this.safetyDistance = 5;
+	this.safetyDistance = 0;
 
 };
 

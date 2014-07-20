@@ -20,7 +20,7 @@ Junction = function ( args ) {
     this.inComingUnsorted = [];
     this.outGoingUnsorted = [];
 
-    this.signalRate = 20;
+    this.signalRate = 30;
 
 };
 

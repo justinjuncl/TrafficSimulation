@@ -20,7 +20,7 @@ Traffic = function ( args ) {
 	this.initialSpeed = 10;
 
 	this.maxAcceleration = 4;
-	this.minAcceleration = -5;
+	this.minAcceleration = -4;
 	this.initialAcceleration = 3;
 
 	this.enableLaneChange = true;

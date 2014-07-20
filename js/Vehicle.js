@@ -806,7 +806,7 @@ Vehicle.prototype = {
 
 		}
 
-		if (this.stopTime >= 20 && this.delta <= 0) {
+		if (this.stopTime >= 30 && this.delta <= 0) {
 
 			this.removeLocation();
 			this.removeVehicle();

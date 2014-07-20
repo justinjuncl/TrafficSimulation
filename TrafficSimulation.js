@@ -710,7 +710,7 @@ Junction = function ( args ) {
     this.inComingUnsorted = [];
     this.outGoingUnsorted = [];
 
-    this.signalRate = 20;
+    this.signalRate = 30;
 
 };
 
@@ -1020,7 +1020,7 @@ Road = function ( args ) {
 
 	this.init();
 
-	this.safetyDistance = 5;
+	this.safetyDistance = 0;
 
 };
 
@@ -1420,7 +1420,7 @@ Traffic = function ( args ) {
 	this.initialSpeed = 10;
 
 	this.maxAcceleration = 4;
-	this.minAcceleration = -5;
+	this.minAcceleration = -4;
 	this.initialAcceleration = 3;
 
 	this.enableLaneChange = true;
@@ -2681,7 +2681,7 @@ Vehicle.prototype = {
 
 		}
 
-		if (this.stopTime >= 20 && this.delta <= 0) {
+		if (this.stopTime >= 30 && this.delta <= 0) {
 
 			this.removeLocation();
 			this.removeVehicle();
