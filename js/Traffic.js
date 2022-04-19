@@ -294,16 +294,17 @@ Traffic.prototype = {
 		this.height = newHeight;
 
 		var canvas = this.canvas;
+
 		canvas.width = newWidth;
 		canvas.height = newHeight;
 
-		var canvasBlocks = this.canvas.canvasBlocks;
-		canvasBlocks.width = newWidth;
-		canvasBlocks.height = newHeight;
+		canvas.canvasBlocks.width = newWidth;
+		canvas.canvasBlocks.height = newHeight;
 
-		var canvasVehicles = this.canvas.canvasVehicles;
-		canvasVehicles.width = newWidth;
-		canvasVehicles.height = newHeight;
+		canvas.canvasVehicles.width = newWidth;
+		canvas.canvasVehicles.height = newHeight;
+
+        var T = canvas.canvasBlocks.getTransform();
 
 		canvas.contextBlocks.setTransform( 1, 0, 0, -1, 0, 0 );
 		canvas.contextVehicles.setTransform( 1, 0, 0, -1, 0, 0 );
@@ -311,7 +312,21 @@ Traffic.prototype = {
 		canvas.contextBlocks.translate( 0, -canvas.height );
 		canvas.contextVehicles.translate( 0, -canvas.height );
 
+        traffic.renderBlocks();
+        traffic.renderVehicles();
 
-	}
+	},
+
+    translate: function ( offsetX, offsetY ) {
+
+		var canvas = this.canvas;
+
+        canvas.contextBlocks.translate( offsetX, offsetY);
+		canvas.contextVehicles.translate( offsetX, offsetY);
+
+        traffic.renderBlocks();
+        traffic.renderVehicles();
+
+    }
 
 }

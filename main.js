@@ -5,8 +5,8 @@ var traffic, canvas,
 function init() {
 
 	traffic = new Traffic({
-		width: 800,
-		height: 700,
+		width: window.innerWidth,
+		height: window.innerHeight,
 		fastForward: 3
 	});
 
@@ -80,6 +80,21 @@ function init() {
 		label: "Pause",
 		func: "pause",
 	});
+
+    traffic.translate(
+        window.innerWidth / 2 - 370,
+		window.innerHeight / 2 - 370
+    );
+
+    window.addEventListener( 'resize', function () {
+
+        // traffic.resize( window.innerWidth, window.innerHeight );
+        // traffic.translate(
+        //     window.innerWidth / 2 - 370,
+        //     window.innerHeight / 2 - 370
+        // );
+
+    } );
 
 }
 

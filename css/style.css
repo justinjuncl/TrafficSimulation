@@ -1,10 +1,11 @@
 /* blue: steelblue */
 
 body {
-	font-family: 'Open Sans', sans-serif;
+	font-family: sans-serif;
 	background-color: #F0F0F0;
 	margin: 0;
 	font-size: 9pt;
+    overflow: hidden;
 }
 
 h1 {
@@ -20,21 +21,20 @@ form {
 }
 
 #inputsContainer {
-
 	margin: 10px;
 	width: 500px;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+}
 
+#inputsContainer > * {
+    pointer-events: auto;
 }
 
 #canvasContainer {
-
 	overflow: auto;
-
-}
-
-canvas {
-	margin: 0 10px 10px;
-	border: 1px solid black;
 }
 
 #canvasBlocks {

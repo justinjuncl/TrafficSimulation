@@ -46,9 +46,6 @@ Canvas = function ( args ) {
 
 	this.scale = args.scale || 1;
 
-	this.offsetX = 0;
-	this.offsetY = 0;
-
 	this.isPanning = false;
 	this.isZooming = false;
 
@@ -128,7 +125,12 @@ Canvas.prototype = {
 
 		canvas = this;
 
+		window.addEventListener( "mousedown", mouseDownListener, false );
+		window.addEventListener( "mouseup", mouseUpListener, false );
 		window.addEventListener( "mousemove", mouseMoveListener, false );
+
+        window.addEventListener( "wheel", wheelListener, false );
+
 		window.addEventListener( "keydown", keyDownListener, false );
 		window.addEventListener( "keyup", keyUpListener, false );
 
@@ -428,53 +430,130 @@ function getMousePosition ( e ) {
 
 }
 
+function mouseDownListener ( e ) {
+
+    getMousePosition( e );
+
+    var button = e.button;
+
+	switch ( button ) {
+
+		case 0:
+
+			canvas.isPanning = true;
+
+			canvas.panStartX = canvas.mouseX;
+			canvas.panStartY = canvas.mouseY;
+
+			break;
+
+		default:
+
+			break;
+
+	}
+
+}
+
+function mouseUpListener ( e ) {
+
+	var button = e.button;
+
+	switch ( button ) {
+
+		case 0:
+
+			canvas.isPanning = false;
+
+			break;
+
+		default:
+
+			break;
+
+	}
+
+}
+
 function mouseMoveListener ( e ) {
 
 	getMousePosition( e );
 
+    var canvasChanged = false;
+
 	if ( canvas.isPanning ) {
+        
+        var T = canvas.contextBlocks.getTransform();
 
-		var panDeltaX = canvas.mouseX - canvas.panStartX;
-		var panDeltaY = canvas.mouseY - canvas.panStartY;
+		var panDeltaX = ( canvas.mouseX - canvas.panStartX ) / T.a;
+		var panDeltaY = ( canvas.mouseY - canvas.panStartY ) / T.a;
 
-		panDeltaX *= canvas.scale;
-		panDeltaY *= canvas.scale;
-
-		canvas.offsetX += panDeltaX;
-		canvas.offsetY += panDeltaY;
+        canvas.panStartX = canvas.mouseX;
+        canvas.panStartY = canvas.mouseY;
 
 		canvas.contextBlocks.translate( panDeltaX, -panDeltaY );
 		canvas.contextVehicles.translate( panDeltaX, -panDeltaY );
+
+        canvasChanged = true;
 
 	}
 
 	if ( canvas.isZooming ) {
 
-		canvas.zoomDeltaX = canvas.mouseX - canvas.zoomStartX;
+        var T = canvas.contextBlocks.getTransform();
+
 		canvas.zoomDeltaY = canvas.mouseY - canvas.zoomStartY;
 
-		canvas.scale = Math.pow( 1.2, -canvas.zoomDeltaY / 200 );
+		var factor = Math.pow( 1.1, -canvas.zoomDeltaY / 200 );
+        factor = Math.max( 0.99, Math.min( 1.01, factor ) );
 
-		// 		canvas.zoomDeltaX *= canvas.scale;
-		// canvas.zoomDeltaY *= canvas.scale;
+        var point = {
+            x: ( canvas.zoomStartX - T.e ) / T.a,
+            y: ( canvas.zoomStartY - T.f ) / T.d
+        };
 
-		canvas.contextBlocks.translate( canvas.zoomStartX, canvas.zoomStartY);
-		canvas.contextBlocks.scale( canvas.scale, canvas.scale );
-		canvas.contextBlocks.translate( -canvas.zoomStartX, -canvas.zoomStartY);
+        canvas.contextBlocks.translate( point.x, point.y );
+        canvas.contextBlocks.scale( factor, factor );
+        canvas.contextBlocks.translate( -point.x, -point.y);
 
-		canvas.contextVehicles.translate( canvas.zoomStartX, canvas.zoomStartY);
-		canvas.contextVehicles.scale( canvas.scale, canvas.scale );
-		canvas.contextVehicles.translate( -canvas.zoomStartX, -canvas.zoomStartY);
+        canvas.contextVehicles.translate( point.x, point.y);
+        canvas.contextVehicles.scale( factor, factor );
+        canvas.contextVehicles.translate( -point.x, -point.y);
 
-		// canvas.contextBlocks.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
-		// canvas.contextVehicles.setTransform(canvas.scale, 0, 0, -canvas.scale, canvas.offsetX, canvas.offsetY);
+        canvasChanged = true;
 
 	}
 
-	canvas.panStartX = canvas.mouseX;
-	canvas.panStartY = canvas.mouseY;
+    if ( canvasChanged ) {
 
-	canvas.renderBlocks();
+        canvas.renderBlocks();
+
+        if ( !canvas.traffic.running ) canvas.renderVehicles();
+
+    }
+
+}
+
+function wheelListener ( e ) {
+
+    var T = canvas.contextBlocks.getTransform();
+
+    var point = {
+        x: ( canvas.mouseX - T.e ) / T.a,
+        y: ( canvas.mouseY - T.f ) / T.d
+    };
+
+    var factor = Math.pow( 1.001, -e.deltaY );
+
+    canvas.contextBlocks.translate( point.x, point.y);
+    canvas.contextBlocks.scale( factor, factor );
+    canvas.contextBlocks.translate( -point.x, -point.y);
+
+    canvas.contextVehicles.translate( point.x, point.y);
+    canvas.contextVehicles.scale( factor, factor );
+    canvas.contextVehicles.translate( -point.x, -point.y);
+
+    canvas.renderBlocks();
 
 	if ( !canvas.traffic.running ) canvas.renderVehicles();
 
@@ -535,9 +614,6 @@ function keyUpListener ( e ) {
 		case 50:
 
 			canvas.isZooming = false;
-
-			canvas.offsetX += canvas.scale * canvas.zoomDeltaX;
-			canvas.offsetY += canvas.scale * canvas.zoomDeltaY;
 
 			break;
 
